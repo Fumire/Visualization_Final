@@ -1,5 +1,5 @@
 .. Visualization_Final documentation master file, created by
-   sphinx-quickstart on Sat Nov 16 04:47:06 2019.
+   sphinx-quickstart on Sat Nov 16 05:41:15 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -10,6 +10,7 @@ Welcome to Visualization_Final's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   Code
 
 
 Indices and tables
