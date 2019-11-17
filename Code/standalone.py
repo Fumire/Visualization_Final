@@ -9,14 +9,14 @@ import pandas
 data_directory = "../Data/"
 
 
-def get_employee(show=False):
+def get_employee_data(show=False):
     """
     Get employee information.
 
     Get employee information from data directory, and drop useless column. Save this with pickle format. Last modified at 2019-11-16T06:26:29+0900
 
     Args:
-        show (bool): when this is true, show the data before returning
+        show (bool): when this is true, show the data information before returning
 
     Returns:
         DataFrame which contains employee data
@@ -36,10 +36,73 @@ def get_employee(show=False):
             pickle.dump(_data, f)
 
     if show:
-        print(_data)
+        print(_data.info())
+
+    return _data
+
+
+def get_general_data(show=False):
+    """
+    Get general building data.
+
+    Get general information of building. Save this with pickle format. Last modified: 2019-11-18T00:39:20+0900
+
+    Args:
+        show (bool): when this is true, show the data information before returning
+
+    Returns:
+        DataFrame which contains general building information
+    """
+    _pickle_file = ".general_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            _data = pickle.load(f)
+    else:
+        _data = pandas.read_csv(data_directory + "BuildingProxSensorData/csv/bldg-MC2.csv")
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
+    if show:
+        print(_data.info())
+
+    return _data
+
+
+def get_hazium_data(data=None, show=False):
+    """
+    Get hazium information data.
+
+    Get hazium data of building. Save this data with pickle format. Last modified: 2019-11-18T01:12:24+0900
+
+    Args:
+        data (None or Int): select which data to fetch. If this value is default(None), the function will return list of possibilities, rather than data
+        show (bool): when this is true, show the data information before returning
+    """
+    _data_location = data_directory + "BuildingProxSensorData/csv/"
+    _data_index = {0: _data_location + "f1z8a-MC2.csv", 1: _data_location + "f2z2-MC2.csv", 2: _data_location + "f2z4-MC2.csv", 3: _data_location + "f3z1-MC2.csv"}
+
+    if (data is None) or (data not in _data_index):
+        return _data_index
+
+    _pickle_file = ".hazium_data_" + str(data) + ".pkl"
+
+    if os.path.isfile(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            _data = pickle.load(f)
+    else:
+        _data = pandas.read_csv(_data_index[data])
+
+    if show:
+        print(_data.info())
 
     return _data
 
 
 if __name__ == "__main__":
-    get_employee(show=True)
+    employee_data = get_employee_data(show=True)
+
+    general_data = get_general_data(show=True)
+
+    hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
