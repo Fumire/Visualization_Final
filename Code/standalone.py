@@ -19,7 +19,7 @@ def get_employee_data(show=False):
         show (bool): when this is true, show the data information before returning
 
     Returns:
-        DataFrame which contains employee data
+        DataFrame: which contains employee data
 
     """
     _pickle_file = ".employee_data.pkl"
@@ -51,7 +51,7 @@ def get_general_data(show=False):
         show (bool): when this is true, show the data information before returning
 
     Returns:
-        DataFrame which contains general building information
+        DataFrame: which contains general building information
     """
     _pickle_file = ".general_data.pkl"
 
@@ -81,7 +81,8 @@ def get_hazium_data(data=None, show=False):
         show (bool): when this is true, show the data information before returning
 
     Returns:
-        Dictionary when data argument is None. Otherwise, returns DataFrame which contains hazium data.
+        Dictionary: when data argument is None
+        DataFrame: Otherwise, returns DataFrame which contains hazium data.
     """
     _data_location = data_directory + "BuildingProxSensorData/csv/"
     _data_index = {0: _data_location + "f1z8a-MC2.csv", 1: _data_location + "f2z2-MC2.csv", 2: _data_location + "f2z4-MC2.csv", 3: _data_location + "f3z1-MC2.csv"}
@@ -118,7 +119,7 @@ def get_fixed_prox_data(show=False):
         show (bool): when this is true, show the data information before returning
 
     Returns:
-        DataFrame which contains fixed prox data
+        DataFrame: which contains fixed prox data
     """
     _pickle_file = ".fixed_prox.pkl"
 
@@ -139,7 +140,15 @@ def get_fixed_prox_data(show=False):
 
 def get_mobile_prox_data(show=False):
     """
+    Get mobile prox data.
 
+    Get mobile prox data of building. Save this with pickle format. Last modified: 2019-11-18T01:40:12+0900
+
+    Args:
+        show (bool): when this is true, show the data information before returning
+
+    Returns:
+        DataFrame: which contains fixed prox data
     """
     _pickle_file = ".mobile_prox.pkl"
 
