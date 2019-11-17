@@ -74,11 +74,14 @@ def get_hazium_data(data=None, show=False):
     """
     Get hazium information data.
 
-    Get hazium data of building. Save this data with pickle format. Last modified: 2019-11-18T01:12:24+0900
+    Get hazium data of building. Save this data with pickle format. Last modified: 2019-11-18T01:37:24+0900
 
     Args:
         data (None or Int): select which data to fetch. If this value is default(None), the function will return list of possibilities, rather than data
         show (bool): when this is true, show the data information before returning
+
+    Returns:
+        Dictionary when data argument is None. Otherwise, returns DataFrame which contains hazium data.
     """
     _data_location = data_directory + "BuildingProxSensorData/csv/"
     _data_index = {0: _data_location + "f1z8a-MC2.csv", 1: _data_location + "f2z2-MC2.csv", 2: _data_location + "f2z4-MC2.csv", 3: _data_location + "f3z1-MC2.csv"}
@@ -94,6 +97,61 @@ def get_hazium_data(data=None, show=False):
     else:
         _data = pandas.read_csv(_data_index[data])
 
+        _data.columns = ["Date/Time", "Hazium Concentration"]
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
+    if show:
+        print(_data.info())
+
+    return _data
+
+
+def get_fixed_prox_data(show=False):
+    """
+    Get fixed prox data.
+
+    Get fixed prox data of building. Save this with pickle format. Last modified: 2019-11-18T01:23:48+0900
+
+    Args:
+        show (bool): when this is true, show the data information before returning
+
+    Returns:
+        DataFrame which contains fixed prox data
+    """
+    _pickle_file = ".fixed_prox.pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            _data = pickle.load(f)
+    else:
+        _data = pandas.read_csv(data_directory + "BuildingProxSensorData/csv/proxOut-MC2.csv")
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
+    if show:
+        print(_data.info())
+
+    return _data
+
+
+def get_mobile_prox_data(show=False):
+    """
+
+    """
+    _pickle_file = ".mobile_prox.pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            _data = pickle.load(f)
+    else:
+        _data = pandas.read_csv(data_directory + "BuildingProxSensorData/csv/proxMobileOut-MC2.csv")
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
     if show:
         print(_data.info())
 
@@ -106,3 +164,7 @@ if __name__ == "__main__":
     general_data = get_general_data(show=True)
 
     hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
+
+    fixed_prox_data = get_fixed_prox_data(show=True)
+
+    mobile_prox_data = get_mobile_prox_data(show=True)
