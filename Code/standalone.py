@@ -4,6 +4,8 @@ Standalone
 
 import os
 import pickle
+import matplotlib
+import matplotlib.pyplot
 import pandas
 
 data_directory = "../Data/"
@@ -13,7 +15,7 @@ def get_employee_data(show=False):
     """
     Get employee information.
 
-    Get employee information from data directory, and drop useless column. Save this with pickle format. Last modified at 2019-11-16T06:26:29+0900
+    Get employee information from data directory, and drop useless column. Save this with pickle format. Last modified: 2019-11-18T02:11:04+0900
 
     Args:
         show (bool): when this is true, show the data information before returning
@@ -31,6 +33,9 @@ def get_employee_data(show=False):
         _data = pandas.read_excel(data_directory + "/Employee List.xlsx")
 
         _data.drop(columns="Unnamed: 0", inplace=True)
+        _data.columns = list(map(lambda x: x.strip(), _data.columns))
+        _data_obj = _data.select_dtypes(["object"])
+        _data[_data_obj.columns] = _data_obj.apply(lambda x: x.str.strip())
 
         with open(_pickle_file, "wb") as f:
             pickle.dump(_data, f)
@@ -45,7 +50,7 @@ def get_general_data(show=False):
     """
     Get general building data.
 
-    Get general information of building. Save this with pickle format. Last modified: 2019-11-18T00:39:20+0900
+    Get general information of building. Save this with pickle format. Last modified: 2019-11-18T02:10:51+0900
 
     Args:
         show (bool): when this is true, show the data information before returning
@@ -61,6 +66,10 @@ def get_general_data(show=False):
     else:
         _data = pandas.read_csv(data_directory + "BuildingProxSensorData/csv/bldg-MC2.csv")
 
+        _data.columns = list(map(lambda x: x.strip(), _data.columns))
+        _data_obj = _data.select_dtypes(["object"])
+        _data[_data_obj.columns] = _data_obj.apply(lambda x: x.str.strip())
+
         with open(_pickle_file, "wb") as f:
             pickle.dump(_data, f)
 
@@ -74,7 +83,7 @@ def get_hazium_data(data=None, show=False):
     """
     Get hazium information data.
 
-    Get hazium data of building. Save this data with pickle format. Last modified: 2019-11-18T01:37:24+0900
+    Get hazium data of building. Save this data with pickle format. Last modified: 2019-11-18T02:10:45+0900
 
     Args:
         data (None or Int): select which data to fetch. If this value is default(None), the function will return list of possibilities, rather than data
@@ -98,6 +107,10 @@ def get_hazium_data(data=None, show=False):
     else:
         _data = pandas.read_csv(_data_index[data])
 
+        _data.columns = list(map(lambda x: x.strip(), _data.columns))
+        _data_obj = _data.select_dtypes(["object"])
+        _data[_data_obj.columns] = _data_obj.apply(lambda x: x.str.strip())
+
         _data.columns = ["Date/Time", "Hazium Concentration"]
 
         with open(_pickle_file, "wb") as f:
@@ -113,7 +126,7 @@ def get_fixed_prox_data(show=False):
     """
     Get fixed prox data.
 
-    Get fixed prox data of building. Save this with pickle format. Last modified: 2019-11-18T01:23:48+0900
+    Get fixed prox data of building. Save this with pickle format. Last modified: 2019-11-18T02:10:39+0900
 
     Args:
         show (bool): when this is true, show the data information before returning
@@ -129,6 +142,10 @@ def get_fixed_prox_data(show=False):
     else:
         _data = pandas.read_csv(data_directory + "BuildingProxSensorData/csv/proxOut-MC2.csv")
 
+        _data.columns = list(map(lambda x: x.strip(), _data.columns))
+        _data_obj = _data.select_dtypes(["object"])
+        _data[_data_obj.columns] = _data_obj.apply(lambda x: x.str.strip())
+
         with open(_pickle_file, "wb") as f:
             pickle.dump(_data, f)
 
@@ -142,7 +159,7 @@ def get_mobile_prox_data(show=False):
     """
     Get mobile prox data.
 
-    Get mobile prox data of building. Save this with pickle format. Last modified: 2019-11-18T01:40:12+0900
+    Get mobile prox data of building. Save this with pickle format. Last modified: 2019-11-18T02:10:31+0900
 
     Args:
         show (bool): when this is true, show the data information before returning
@@ -157,6 +174,10 @@ def get_mobile_prox_data(show=False):
             _data = pickle.load(f)
     else:
         _data = pandas.read_csv(data_directory + "BuildingProxSensorData/csv/proxMobileOut-MC2.csv")
+
+        _data.columns = list(map(lambda x: x.strip(), _data.columns))
+        _data_obj = _data.select_dtypes(["object"])
+        _data[_data_obj.columns] = _data_obj.apply(lambda x: x.str.strip())
 
         with open(_pickle_file, "wb") as f:
             pickle.dump(_data, f)
@@ -177,3 +198,5 @@ if __name__ == "__main__":
     fixed_prox_data = get_fixed_prox_data(show=True)
 
     mobile_prox_data = get_mobile_prox_data(show=True)
+
+    print(sorted(list(set(fixed_prox_data["prox-id"]))))
