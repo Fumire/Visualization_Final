@@ -2,12 +2,16 @@
 Standalone
 """
 
+import datetime
 import os
 import pickle
 import time
 import matplotlib
 import matplotlib.pyplot
 import pandas
+import scipy
+import sklearn
+import sklearn.manifold
 
 data_directory = "../Data/"
 figure_directory = "figures/"
@@ -227,7 +231,7 @@ def draw_mobile_prox_data(verbose=True):
         verbose (bool): Verbosity level
 
     Returns:
-
+        None
     """
     if verbose:
         print("Fetch data...")
@@ -256,7 +260,7 @@ def draw_mobile_prox_data(verbose=True):
             matplotlib.pyplot.figure()
             matplotlib.pyplot.scatter(data["x"], data["y"], alpha=0.3, s=200, marker="X")
 
-            matplotlib.pyplot.title("Mobile prox Data in " + date_string + " on " + str(floor) + "th Floor")
+            matplotlib.pyplot.title("Mobile prox Data in " + date_string + " on " + str(floor) + " Floor")
             matplotlib.pyplot.xlabel("X")
             matplotlib.pyplot.ylabel("Y")
             matplotlib.pyplot.xlim(0, _x_limit)
@@ -273,6 +277,68 @@ def draw_mobile_prox_data(verbose=True):
             print("Drawing Done!!")
 
 
+def draw_tsne_mobile_prox_data(is_drawing=False, verbose=False):
+    """
+    Draw tsne with mobile prox data.
+
+    Last modified: 2019-11-18T15:10:48+0900
+
+    Args:
+        is_drawing (bool): If it is true, this function will draw the tsne plot.
+        verbose (bool): Verbosity level
+
+    Returns:
+        tsne (DataFrame): DataFrame which contains tsne in two dimension
+    """
+    _pickle_file = ".tsne_mobile_prox_data.pkl"
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            _tsne = pickle.load(f)
+    else:
+        if verbose:
+            print("Make TSNE")
+
+        data = get_mobile_prox_data()
+        data.drop(columns=["type", "prox-id"], inplace=True)
+        data["timestamp"] = list(map(lambda x: datetime.datetime.timestamp(x), data["timestamp"]))
+
+        _tsne = pandas.DataFrame(data=sklearn.manifold.TSNE(n_components=2, random_state=0).fit_transform(data), columns=["TSNE-1", "TSNE-2"])
+        _tsne["TSNE-1"] = scipy.stats.zscore(_tsne["TSNE-1"])
+        _tsne["TSNE-2"] = scipy.stats.zscore(_tsne["TSNE-2"])
+        _tsne["id"] = data.index
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_tsne, f)
+
+    if is_drawing:
+        if verbose:
+            print("Drawing TSNE")
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.scatter(_tsne["TSNE-1"], _tsne["TSNE-2"], alpha=0.3, s=100)
+
+        matplotlib.pyplot.title("TSNE of Mobile prox Data")
+        matplotlib.pyplot.xlabel("Standardized TSNE-1")
+        matplotlib.pyplot.ylabel("Standardized TSNE-2")
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "TSNEMobileProxData" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        if verbose:
+            print("Drawing Done!!")
+
+    return _tsne
+
+
 if __name__ == "__main__":
     employee_data = get_employee_data(show=True)
     general_data = get_general_data(show=True)
@@ -280,4 +346,5 @@ if __name__ == "__main__":
     fixed_prox_data = get_fixed_prox_data(show=True)
     mobile_prox_data = get_mobile_prox_data(show=True)
 
-    draw_mobile_prox_data(verbose=True)
+    # draw_mobile_prox_data(verbose=True)
+    tsne_mobile_prox_data = draw_tsne_mobile_prox_data(is_drawing=True, verbose=True)
