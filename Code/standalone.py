@@ -486,6 +486,52 @@ def get_tsne_general_data(is_drawing=False, verbose=False):
     return _tsne
 
 
+def draw_general_data(verbose=False):
+    """
+    Draw general data.
+
+    Draw each data type of general data. Last modified: 2019-11-19T06:43:42+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
+    """
+    if verbose:
+        print("Drawing General Data")
+
+    _data = get_general_data()
+    _columns = list(_data.columns)
+
+    if verbose:
+        print("Total columns:", len(_columns))
+
+    for column in _columns[1:]:
+        if verbose:
+            print(">> Drawing:", column)
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.plot(_data[_columns[0]], _data[column])
+
+        matplotlib.pyplot.title("General Data:" + column)
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Value")
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "GeneralData" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    if verbose:
+        print("Drawing Done!!")
+
+
 if __name__ == "__main__":
     employee_data = get_employee_data(show=True)
     general_data = get_general_data(show=True)
@@ -497,3 +543,4 @@ if __name__ == "__main__":
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
+    draw_general_data(verbose=True)
