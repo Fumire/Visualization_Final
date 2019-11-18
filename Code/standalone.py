@@ -277,7 +277,7 @@ def draw_mobile_prox_data(verbose=True):
             print("Drawing Done!!")
 
 
-def draw_tsne_mobile_prox_data(is_drawing=False, verbose=False):
+def get_tsne_mobile_prox_data(is_drawing=False, verbose=False):
     """
     Draw tsne with mobile prox data.
 
@@ -347,4 +347,4 @@ if __name__ == "__main__":
     mobile_prox_data = get_mobile_prox_data(show=True)
 
     # draw_mobile_prox_data(verbose=True)
-    tsne_mobile_prox_data = draw_tsne_mobile_prox_data(is_drawing=True, verbose=True)
+    tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
