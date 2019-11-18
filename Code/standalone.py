@@ -291,6 +291,7 @@ def get_tsne_mobile_prox_data(is_drawing=False, verbose=False):
         tsne (DataFrame): DataFrame which contains tsne in two dimension
     """
     _pickle_file = ".tsne_mobile_prox_data.pkl"
+
     if os.path.exists(_pickle_file):
         if verbose:
             print("Pickle exists")
@@ -421,6 +422,68 @@ def draw_tsne_mobile_prox_data_by_value(verbose=False):
         print("Drawing Floor Done!!")
 
 
+def get_tsne_general_data(is_drawing=False, verbose=False):
+    """
+    Get tsne with general data.
+
+    Calculate tsne with general data, and save the tnse for further analysis. Last modified:
+
+    Args:
+        is_drawing (bool): If it is true, this function will draw the tsne plot.
+        verbose (bool): Verbosity level.
+
+    Returns:
+        tsne (DataFrame): DataFrame which contains the tsne in two dimension.
+    """
+    _pickle_file = ".tsne_general_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            _tsne = pickle.load(f)
+    else:
+        if verbose:
+            print("Make TSNE")
+
+        data = get_general_data()
+        data["Date/Time"] = list(map(lambda x: datetime.datetime.timestamp(x), data["Date/Time"]))
+
+        _tsne = pandas.DataFrame(data=sklearn.manifold.TSNE(n_components=2, random_state=0).fit_transform(data), columns=["TSNE-1", "TSNE-2"])
+        _tsne["TSNE-1"] = scipy.stats.zscore(_tsne["TSNE-1"])
+        _tsne["TSNE-2"] = scipy.stats.zscore(_tsne["TSNE-2"])
+        _tsne["id"] = data.index
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_tsne, f)
+
+    if is_drawing:
+        if verbose:
+            print("Drawing TSNE")
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.scatter(_tsne["TSNE-1"], _tsne["TSNE-2"], alpha=0.3, s=100)
+
+        matplotlib.pyplot.title("TSNE of General Data")
+        matplotlib.pyplot.xlabel("Standardized TSNE-1")
+        matplotlib.pyplot.ylabel("Standardized TSNE-2")
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "TSNEGeneralData" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        if verbose:
+            print("Drawing Done!!")
+
+    return _tsne
+
+
 if __name__ == "__main__":
     employee_data = get_employee_data(show=True)
     general_data = get_general_data(show=True)
@@ -430,4 +493,5 @@ if __name__ == "__main__":
 
     # draw_mobile_prox_data(verbose=True)
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
-    draw_tsne_mobile_prox_data_by_value(verbose=True)
+    # draw_tsne_mobile_prox_data_by_value(verbose=True)
+    tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
