@@ -190,7 +190,7 @@ def get_mobile_prox_data(show=False):
     """
     Get mobile prox data.
 
-    Get mobile prox data of building. Save this with pickle format. Last modified: 2019-11-18T02:10:31+0900
+    Get mobile prox data of building. Drop duplicate rows. Save this with pickle format. Last modified: 2019-11-19T06:11:49+0900
 
     Args:
         show (bool): when this is true, show the data information before returning
@@ -211,6 +211,8 @@ def get_mobile_prox_data(show=False):
         _data[_data_obj.columns] = _data_obj.apply(lambda x: x.str.strip())
 
         _data["timestamp"] = pandas.to_datetime(_data["timestamp"])
+
+        _data.drop_duplicates(inplace=True)
 
         with open(_pickle_file, "wb") as f:
             pickle.dump(_data, f)
@@ -370,7 +372,7 @@ def draw_tsne_mobile_prox_data_by_value(verbose=False):
         if verbose:
             print(">> Drawing figure:", date_string)
 
-        drawing_data = _tsne[(pandas.to_datetime(_data["timestamp"]).apply(lambda x: x.date()) == date)]
+        drawing_data = _tsne[list(pandas.to_datetime(_data["timestamp"]).apply(lambda x: x.date()) == date)]
 
         matplotlib.pyplot.scatter(drawing_data["TSNE-1"], drawing_data["TSNE-2"], alpha=0.3, s=200, label=date_string)
 
@@ -402,7 +404,7 @@ def draw_tsne_mobile_prox_data_by_value(verbose=False):
         if verbose:
             print(">> Drawing floor:", floor)
 
-        drawing_data = _tsne[(_data["floor"] == floor)]
+        drawing_data = _tsne[list(_data["floor"] == floor)]
 
         matplotlib.pyplot.scatter(drawing_data["TSNE-1"], drawing_data["TSNE-2"], alpha=0.3, s=200, label=str(floor))
 
@@ -494,4 +496,4 @@ if __name__ == "__main__":
     # draw_mobile_prox_data(verbose=True)
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
-    tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
+    # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
