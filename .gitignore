@@ -1,4 +1,3 @@
-
 # Created by https://www.gitignore.io/api/tex,python
 # Edit at https://www.gitignore.io/?templates=tex,python
 
@@ -378,3 +377,5 @@ TSWLatexianTemp*
 *.glstex
 
 # End of https://www.gitignore.io/api/tex,python
+
+Code/figures/
