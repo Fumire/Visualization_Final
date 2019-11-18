@@ -279,9 +279,9 @@ def draw_mobile_prox_data(verbose=True):
 
 def get_tsne_mobile_prox_data(is_drawing=False, verbose=False):
     """
-    Draw tsne with mobile prox data.
+    Get tsne with mobile prox data.
 
-    Last modified: 2019-11-18T15:10:48+0900
+    Calculate tsne with mobile prox data. Also, save the tnse for futher analysis. Last modified: 2019-11-18T15:10:48+0900
 
     Args:
         is_drawing (bool): If it is true, this function will draw the tsne plot.
@@ -339,6 +339,88 @@ def get_tsne_mobile_prox_data(is_drawing=False, verbose=False):
     return _tsne
 
 
+def draw_tsne_mobile_prox_data_by_value(verbose=False):
+    """
+    Draw tsne plot with day / floor
+
+    Draw tsne plot with day and floor. Last modified: 2019-11-19T01:59:59+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
+    """
+    _tsne = get_tsne_mobile_prox_data()
+    _data = get_mobile_prox_data()
+
+    if verbose:
+        print("Drawing day")
+
+    _dates = sorted(list(set(pandas.to_datetime(_data["timestamp"]).apply(lambda x: x.date()))))
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    for date in _dates:
+        date_string = date.strftime("%Y-%m-%d")
+
+        if verbose:
+            print(">> Drawing figure:", date_string)
+
+        drawing_data = _tsne[(pandas.to_datetime(_data["timestamp"]).apply(lambda x: x.date()) == date)]
+
+        matplotlib.pyplot.scatter(drawing_data["TSNE-1"], drawing_data["TSNE-2"], alpha=0.3, s=200, label=date_string)
+
+    matplotlib.pyplot.title("Mobile prox Data by Date")
+    matplotlib.pyplot.xlabel("Standardized TSNE-1")
+    matplotlib.pyplot.ylabel("Standardized TSNE-2")
+    matplotlib.pyplot.grid(True)
+    matplotlib.pyplot.legend()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(24, 24)
+    fig.savefig(figure_directory + "DateTSNEMobileProxData" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+    if verbose:
+        print("Drawing Date Done!!")
+
+    if verbose:
+        print("Drawing Floor")
+
+    _floors = sorted(list(set(_data["floor"])))
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    for floor in _floors:
+        if verbose:
+            print(">> Drawing floor:", floor)
+
+        drawing_data = _tsne[(_data["floor"] == floor)]
+
+        matplotlib.pyplot.scatter(drawing_data["TSNE-1"], drawing_data["TSNE-2"], alpha=0.3, s=200, label=str(floor))
+
+    matplotlib.pyplot.title("Mobile prox Data by Floor")
+    matplotlib.pyplot.xlabel("Standardized TSNE-1")
+    matplotlib.pyplot.ylabel("Standardized TSNE-2")
+    matplotlib.pyplot.grid(True)
+    matplotlib.pyplot.legend()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(24, 24)
+    fig.savefig(figure_directory + "FloorTSNEMobileProxData" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+    if verbose:
+        print("Drawing Floor Done!!")
+
+
 if __name__ == "__main__":
     employee_data = get_employee_data(show=True)
     general_data = get_general_data(show=True)
@@ -347,4 +429,5 @@ if __name__ == "__main__":
     mobile_prox_data = get_mobile_prox_data(show=True)
 
     # draw_mobile_prox_data(verbose=True)
-    tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
+    # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
+    draw_tsne_mobile_prox_data_by_value(verbose=True)
