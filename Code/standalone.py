@@ -3,15 +3,19 @@ Standalone
 """
 
 import datetime
+import multiprocessing
 import os
 import pickle
 import time
 import matplotlib
 import matplotlib.pyplot
 import pandas
+import pandas.plotting
 import scipy
 import sklearn
 import sklearn.manifold
+
+pandas.plotting.register_matplotlib_converters()
 
 data_directory = "../Data/"
 figure_directory = "figures/"
@@ -23,7 +27,7 @@ def current_time():
     """
     Get current time.
 
-    Wait a second for avoiding duplication, and get current time for file name. Last modified: 2019-11-18T06:48:21+0900
+    Get current time for file name. Last modified: 2019-11-19T06:50:09+0900
 
     Args:
         None
@@ -31,7 +35,6 @@ def current_time():
     Returns:
         String: the time in the string format
     """
-    time.sleep(1)
     return "_" + time.strftime("%m%d%H%M%S")
 
 
@@ -271,7 +274,7 @@ def draw_mobile_prox_data(verbose=True):
 
             fig = matplotlib.pyplot.gcf()
             fig.set_size_inches(32, 18)
-            fig.savefig(figure_directory + "MobileProxData" + current_time() + ".png")
+            fig.savefig(figure_directory + "MobileProxData_" + date_string + current_time() + ".png")
 
             matplotlib.pyplot.close()
     else:
@@ -384,7 +387,7 @@ def draw_tsne_mobile_prox_data_by_value(verbose=False):
 
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(24, 24)
-    fig.savefig(figure_directory + "DateTSNEMobileProxData" + current_time() + ".png")
+    fig.savefig(figure_directory + "DateTSNEMobileProxData_" + date_string + current_time() + ".png")
 
     matplotlib.pyplot.close()
 
@@ -416,7 +419,7 @@ def draw_tsne_mobile_prox_data_by_value(verbose=False):
 
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(24, 24)
-    fig.savefig(figure_directory + "FloorTSNEMobileProxData" + current_time() + ".png")
+    fig.savefig(figure_directory + "FloorTSNEMobileProxData_" + str(floor) + current_time() + ".png")
 
     matplotlib.pyplot.close()
 
@@ -486,14 +489,15 @@ def get_tsne_general_data(is_drawing=False, verbose=False):
     return _tsne
 
 
-def draw_general_data(verbose=False):
+def draw_general_data(verbose=False, relative=False):
     """
     Draw general data.
 
-    Draw each data type of general data. Last modified: 2019-11-19T06:43:42+0900
+    Draw each data type of general data. Last modified: 2019-11-19T07:03:02+0900
 
     Args:
         verbose (bool): Verbosity level
+        relative (bool): If this is true, draw relative data instead
 
     Returns:
         None
@@ -507,7 +511,7 @@ def draw_general_data(verbose=False):
     if verbose:
         print("Total columns:", len(_columns))
 
-    for column in _columns[1:]:
+    for i, column in enumerate(_columns[1:]):
         if verbose:
             print(">> Drawing:", column)
 
@@ -515,21 +519,142 @@ def draw_general_data(verbose=False):
         matplotlib.rcParams.update({"font.size": 30})
 
         matplotlib.pyplot.figure()
-        matplotlib.pyplot.plot(_data[_columns[0]], _data[column])
+        if relative:
+            matplotlib.pyplot.plot(_data[_columns[0]], scipy.stats.zscore(_data[column]))
+        else:
+            matplotlib.pyplot.plot(_data[_columns[0]], _data[column])
 
         matplotlib.pyplot.title("General Data:" + column)
         matplotlib.pyplot.xlabel("Time")
-        matplotlib.pyplot.ylabel("Value")
+        if relative:
+            matplotlib.pyplot.ylabel("Value (Standardized)")
+        else:
+            matplotlib.pyplot.ylabel("Value")
         matplotlib.pyplot.grid(True)
 
         fig = matplotlib.pyplot.gcf()
         fig.set_size_inches(32, 18)
-        fig.savefig(figure_directory + "GeneralData" + current_time() + ".png")
+        fig.savefig(figure_directory + "GeneralData_" + str(i) + current_time() + ".png")
 
         matplotlib.pyplot.close()
 
     if verbose:
         print("Drawing Done!!")
+
+
+def get_regression_general_data(column, is_drawing=True, verbose=False):
+    """
+    Regreesion general data. (Actual)
+
+    Get regression with general data by each columns. Save the best regression for further analysis. Returns score to find unusual events. Last modified: 2019-11-19T08:52:35+0900
+
+    Args:
+        column (string): Mandatory. column name to regress.
+        is_drawing (bool): If this is True, draw the regression plot.
+        verbose (bool): Verbosity level
+
+    Returns:
+        List: The score of best the algorithm amongst the algorithms which are executed.
+    """
+    _data = get_general_data()
+    time_data = _data["Date/Time"]
+    _values = dict()
+
+    if column not in list(_data.columns)[1:]:
+        print("Invalid column:", column)
+        raise ValueError
+
+    column_index = list(_data.columns).index(column)
+    _pickle_file = ".regression_general_data_" + str(column_index) + ".pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+
+        with open(_pickle_file, "rb") as f:
+            _value, _values = pickle.load(f)
+    else:
+        if verbose:
+            print("Calculating...")
+
+        y_data = _data[column]
+        _data.drop(columns=["Date/Time"], inplace=True)
+        _values["Real"] = y_data
+
+        svr = sklearn.svm.SVR(gamma="scale")
+        svr.fit(_data, y_data)
+        _values["svr (%.2f)" % svr.score(_data, y_data)] = svr.predict(_data)
+
+        _score, _value = svr.score(_data, y_data), svr.predict(_data)
+
+        if verbose:
+            print("SVR:", _score)
+
+        nusvr = sklearn.svm.NuSVR(gamma="scale")
+        nusvr.fit(_data, y_data)
+        _values["nusvr (%.2f)" % nusvr.score(_data, y_data)] = nusvr.predict(_data)
+
+        if verbose:
+            print("NuSVR:", nusvr.score(_data, y_data))
+
+        if _score < nusvr.score(_data, y_data):
+            _score, _value = nusvr.score(_data, y_data), nusvr.predict(_data)
+
+        linearsvr = sklearn.svm.LinearSVR(random_state=0, max_iter=10000)
+        linearsvr.fit(_data, y_data)
+        _values["linearsvr (%.2f)" % linearsvr.score(_data, y_data)] = linearsvr.predict(_data)
+
+        if verbose:
+            print("LinearSVR:", linearsvr.score(_data, y_data))
+
+        if _score < linearsvr.score(_data, y_data):
+            _score, _value = linearsvr.score(_data, y_data), linearsvr.predict(_data)
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump((_value, _values), f)
+
+    if is_drawing:
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        for algorithm in _values:
+            matplotlib.pyplot.plot(time_data, _values[algorithm], label=algorithm)
+
+        matplotlib.pyplot.title("Regression of General Data: " + column)
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Value")
+        matplotlib.pyplot.grid(True)
+        matplotlib.pyplot.legend()
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "RegressionGeneralData_" + str(column_index) + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    return _value
+
+
+def regression_all_general_data(verbose=False, processes=100):
+    """
+    Regression general data. (Command)
+
+    Get regression with general data by each columns. Collect its score and find unusual events. Last modified: 
+
+    Args:
+        verbose (bool): Verbosity level
+        processes (int): Number of threads
+
+    Returns:
+
+    """
+    _data = get_general_data()
+
+    with multiprocessing.Pool(processes=processes) as pool:
+        values = pool.starmap(get_regression_general_data, list(_data.columns)[1:])
+
+    print(values)
 
 
 if __name__ == "__main__":
@@ -543,4 +668,6 @@ if __name__ == "__main__":
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
-    draw_general_data(verbose=True)
+    # draw_general_data(verbose=True, relative=False)
+
+    regression_all_general_data(verbose=True)
