@@ -652,7 +652,7 @@ def regression_all_general_data(verbose=False, processes=100):
     _data = get_general_data()
 
     with multiprocessing.Pool(processes=processes) as pool:
-        values = pool.starmap(get_regression_general_data, list(_data.columns)[1:])
+        values = pool.map(get_regression_general_data, list(_data.columns)[1:])
 
     print(values)
 
@@ -668,6 +668,6 @@ if __name__ == "__main__":
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
-    # draw_general_data(verbose=True, relative=False)
+    draw_general_data(verbose=True, relative=False)
 
-    regression_all_general_data(verbose=True)
+    # regression_all_general_data(verbose=True)
