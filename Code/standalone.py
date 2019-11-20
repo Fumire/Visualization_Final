@@ -3,6 +3,7 @@ Standalone
 """
 
 import datetime
+import math
 import multiprocessing
 import os
 import pickle
@@ -672,7 +673,6 @@ def draw_movement_mobile_prox_data(verbose=False):
             print(">> Drawing:", name)
 
         drawing_data = _data[(_data["prox-id"].str.contains(name))]
-
         x_data = list(drawing_data["x"])
         y_data = list(drawing_data["y"])
 
@@ -704,6 +704,57 @@ def draw_movement_mobile_prox_data(verbose=False):
         print("Drawing Done!!")
 
 
+def calculate_movement(verbose=False):
+    """
+    Calculate movement.
+
+    Calucate movement for each individual by ID. Save the result for further analysis.
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        Dictionary: Dictionary which contains distance information for each individual
+    """
+    def calculate(x1, y1, x2, y2):
+        return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2))
+
+    _pickle_file = ".movement_percentile.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            return pickle.load(f)
+    else:
+        if verbose:
+            print("Calculating...")
+
+        _data = get_mobile_prox_data()
+        _names = sorted(list(set(list(map(lambda x: x[:-3], _data["prox-id"])))))
+        _result = dict()
+
+        for name in _names:
+            if verbose:
+                print(">> calculate:", name)
+
+            distance = 0
+
+            data = _data[(_data["prox-id"].str.contains(name))]
+            x_data = list(data["x"])
+            y_data = list(data["y"])
+
+            for i in range(1, len(x_data)):
+                distance += calculate(x_data[i - 1], y_data[i - 1], x_data[i], y_data[i])
+
+            _result[name] = distance
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_result, f)
+
+        return _result
+
+
 if __name__ == "__main__":
     employee_data = get_employee_data(show=True)
     general_data = get_general_data(show=True)
@@ -716,7 +767,8 @@ if __name__ == "__main__":
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
     # draw_general_data(verbose=True, relative=False)
+    # draw_movement_mobile_prox_data(verbose=True)
 
     # regression_all_general_data(verbose=True)
 
-    draw_movement_mobile_prox_data(verbose=True)
+    movement_information = calculate_movement(verbose=True)
