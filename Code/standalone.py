@@ -432,7 +432,7 @@ def get_tsne_general_data(is_drawing=False, verbose=False):
     """
     Get tsne with general data.
 
-    Calculate tsne with general data, and save the tnse for further analysis. Last modified:
+    Calculate tsne with general data, and save the tnse for further analysis. Last modified: 2019-11-20T19:16:00+0900
 
     Args:
         is_drawing (bool): If it is true, this function will draw the tsne plot.
@@ -641,7 +641,7 @@ def regression_all_general_data(verbose=False, processes=100):
     """
     Regression general data. (Command)
 
-    Get regression with general data by each columns. Collect its score and find unusual events. Last modified: 
+    Get regression with general data by each columns. Collect its score and find unusual events. Last modified: 2019-11-20T19:16:14+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -661,6 +661,8 @@ def regression_all_general_data(verbose=False, processes=100):
 def draw_movement_mobile_prox_data(verbose=False):
     """
     Draw movement with mobile prox data.
+
+    Draw movement with mobile prox data by each individuals. Start point will be shown as red mark, and final point will be shown as blue mark. Last modified: 2019-11-20T19:17:16+0900
     """
     if verbose:
         print("Drawing movement")
@@ -757,7 +759,15 @@ def calculate_movement(verbose=False):
 
 def draw_movement(verbose=False):
     """
+    Draw movement Distribution.
 
+    Draw movement distribution with individual in sorting. Last modified: 2019-11-20T19:15:30+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
     """
     _data = calculate_movement()
     _values = sorted(list(_data.values()), reverse=True)
@@ -767,6 +777,12 @@ def draw_movement(verbose=False):
 
     matplotlib.pyplot.figure()
     matplotlib.pyplot.bar(range(len(_data)), _values)
+
+    matplotlib.pyplot.title("Movement Distribution")
+    matplotlib.pyplot.xlabel("Individual")
+    matplotlib.pyplot.ylabel("Moving Distance")
+    matplotlib.pyplot.xticks()
+    matplotlib.pyplot.grid(True)
 
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(32, 18)
