@@ -657,6 +657,53 @@ def regression_all_general_data(verbose=False, processes=100):
     print(values)
 
 
+def draw_movement_mobile_prox_data(verbose=False):
+    """
+    Draw movement with mobile prox data.
+    """
+    if verbose:
+        print("Drawing movement")
+
+    _data = get_mobile_prox_data()
+    _names = sorted(list(set(list(map(lambda x: x[:-3], _data["prox-id"])))))
+
+    for num, name in enumerate(_names):
+        if verbose:
+            print(">> Drawing:", name)
+
+        drawing_data = _data[(_data["prox-id"].str.contains(name))]
+
+        x_data = list(drawing_data["x"])
+        y_data = list(drawing_data["y"])
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        for i in range(1, len(x_data)):
+            if x_data[i - 1] == x_data[i] and y_data[i - 1] == y_data[i]:
+                continue
+            matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=0.7, length_includes_head=True, head_width=3, head_length=3, color="k")
+        matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="X", c="r")
+        matplotlib.pyplot.scatter(x_data[-1], y_data[-1], s=1000, marker="X", c="b")
+
+        matplotlib.pyplot.title("Movement of " + name)
+        matplotlib.pyplot.xlabel("X")
+        matplotlib.pyplot.ylabel("Y")
+        matplotlib.pyplot.xlim(0, _x_limit)
+        matplotlib.pyplot.ylim(0, _y_limit)
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "Movement_" + str(num) + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    if verbose:
+        print("Drawing Done!!")
+
+
 if __name__ == "__main__":
     employee_data = get_employee_data(show=True)
     general_data = get_general_data(show=True)
@@ -668,6 +715,8 @@ if __name__ == "__main__":
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
-    draw_general_data(verbose=True, relative=False)
+    # draw_general_data(verbose=True, relative=False)
 
     # regression_all_general_data(verbose=True)
+
+    draw_movement_mobile_prox_data(verbose=True)
