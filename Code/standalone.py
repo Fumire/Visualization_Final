@@ -755,6 +755,26 @@ def calculate_movement(verbose=False):
         return _result
 
 
+def draw_movement(verbose=False):
+    """
+
+    """
+    _data = calculate_movement()
+    _values = sorted(list(_data.values()), reverse=True)
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.bar(range(len(_data)), _values)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "MovementDistribution" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
 if __name__ == "__main__":
     employee_data = get_employee_data(show=True)
     general_data = get_general_data(show=True)
@@ -772,3 +792,4 @@ if __name__ == "__main__":
     # regression_all_general_data(verbose=True)
 
     movement_information = calculate_movement(verbose=True)
+    draw_movement()
