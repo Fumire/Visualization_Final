@@ -859,11 +859,20 @@ def draw_movement_mobile_prox(verbose=False):
     matplotlib.pyplot.close()
 
 
-def get_anormal_general_data(is_drawing=False, verbose=False):
+def get_abnormal_general_data(is_drawing=False, verbose=False):
     """
+    Find abnormality in general data.
 
+    Find and calculate abnormality in general data. Save this with pickle format. Last modified: 2019-11-22T05:50:23+0900
+
+    Args:
+        is_drawing (bool): If it is true, this function will draw the tsne plot with abnormality
+        verbose (bool): Verbosity level.
+
+    Returns:
+        DataFrame: which contains TSNE along abnormality.
     """
-    _pickle_file = ".anormal_general_data.pkl"
+    _pickle_file = ".abnormal_general_data.pkl"
 
     if os.path.exists(_pickle_file):
         if verbose:
@@ -891,11 +900,89 @@ def get_anormal_general_data(is_drawing=False, verbose=False):
         localoutlier = sklearn.neighbors.LocalOutlierFactor(n_jobs=100)
         _tsne["localoutlier"] = list(map(lambda x: True if x == -1 else False, localoutlier.fit_predict(data)))
 
-        if verbose:
-            print(_tsne)
-
         with open(_pickle_file, "wb") as f:
             pickle.dump(_tsne, f)
+
+    if verbose:
+        print(_tsne)
+
+    if is_drawing:
+        if verbose:
+            print("Abnormality by Algorithms")
+
+        drawing_data = list()
+        for column in list(_tsne.columns)[3:]:
+            drawing_data.append(list(map(lambda x: 1 if x else 0, list(_tsne[column]))))
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.pcolor(drawing_data)
+
+        matplotlib.pyplot.title("Abnormality by Algorithms")
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Algorithms")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.yticks(list(map(lambda x: x + 0.5, range(len(list(_tsne.columns)[3:])))), list(_tsne.columns)[3:])
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "Abnormality" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        if verbose:
+            print("Total Abnormality")
+
+        data = drawing_data[:]
+        drawing_data = [0 for _ in data[0]]
+        for elements in data:
+            for i, element in enumerate(elements):
+                drawing_data[i] += element
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.bar(range(len(drawing_data)), drawing_data)
+
+        matplotlib.pyplot.title("Total Abnormality")
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Abnormality Score")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.yticks([])
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "TotalAbnormality" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        for algorithm in list(_tsne.columns)[3:]:
+            if verbose:
+                print(">> Drawing:", algorithm)
+
+            x_data, o_data = _tsne.loc[(_tsne[algorithm])], _tsne.loc[~(_tsne[algorithm])]
+
+            matplotlib.use("Agg")
+            matplotlib.rcParams.update({"font.size": 30})
+
+            matplotlib.pyplot.figure()
+            matplotlib.pyplot.scatter(o_data["TSNE-1"], o_data["TSNE-2"], alpha=0.3, s=200, marker="o", label="Inlier")
+            matplotlib.pyplot.scatter(x_data["TSNE-1"], x_data["TSNE-2"], alpha=1, s=100, marker="X", label="Outlier")
+
+            matplotlib.pyplot.title("Abnormality: " + algorithm)
+            matplotlib.pyplot.xlabel("Standardized TSNE-1")
+            matplotlib.pyplot.ylabel("Standardized TSNE-2")
+            matplotlib.pyplot.grid(True)
+            matplotlib.pyplot.legend()
+
+            fig = matplotlib.pyplot.gcf()
+            fig.set_size_inches(24, 24)
+            fig.savefig(figure_directory + "OutlierTSNE_" + algorithm + current_time() + ".png")
+
+            matplotlib.pyplot.close()
 
     return _tsne
 
@@ -932,7 +1019,7 @@ if __name__ == "__main__":
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
-    anormal_general_data = get_anormal_general_data(is_drawing=True, verbose=True)
+    abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
     # draw_general_data(verbose=True, relative=False)
     # draw_movement_mobile_prox_mobile_prox_data(verbose=True)
     # draw_hazium_data(verbose=True, which=None)
