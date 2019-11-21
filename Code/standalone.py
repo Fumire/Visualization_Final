@@ -580,7 +580,7 @@ def get_regression_general_data(column, is_drawing=False, verbose=False):
             print("Calculating...")
 
         y_data = _data[column]
-        _data.drop(columns=["Date/Time"], inplace=True)
+        _data.drop(columns=["Date/Time", column], inplace=True)
         _values["Real"] = y_data
 
         adaboost = sklearn.ensemble.AdaBoostRegressor(random_state=0)
@@ -625,6 +625,18 @@ def get_regression_general_data(column, is_drawing=False, verbose=False):
         with open(_pickle_file, "wb") as f:
             pickle.dump((_value, _values), f)
 
+    _csv_file = "csv/regression_" + str(column_index) + ".csv"
+    with open(_csv_file, "w") as f:
+        names = sorted(list(_values.keys()))
+        values = pandas.DataFrame.from_dict(_values)
+
+        f.write(",".join(names))
+        f.write("\n")
+
+        for index, row in values.iterrows():
+            f.write(",".join(["%6f" % row[name] for name in names]))
+            f.write("\n")
+
     if is_drawing:
         matplotlib.use("Agg")
         matplotlib.rcParams.update({"font.size": 30})
@@ -665,6 +677,9 @@ def regression_all_general_data(verbose=False, processes=100):
 
     with multiprocessing.Pool(processes=processes) as pool:
         values = pool.map(get_regression_general_data, list(_data.columns)[1:])
+
+    values = pandas.DataFrame.from_records(values).T
+    values.columns = list(_data.columns)[1:]
 
     print(values)
 
@@ -837,8 +852,7 @@ if __name__ == "__main__":
     # draw_movement_mobile_prox_mobile_prox_data(verbose=True)
     # draw_hazium_data(verbose=True, which=None)
 
-    regression_all_general_data(verbose=True)
+    regression_all_general_data(verbose=True, processes=100)
 
-    movement_information = calculate_movement_mobile_prox(verbose=True)
-    print(movement_information)
+    # movement_information = calculate_movement_mobile_prox(verbose=True)
     # draw_movement_mobile_prox(verbose=True)
