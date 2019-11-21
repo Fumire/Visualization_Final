@@ -14,6 +14,7 @@ import pandas
 import pandas.plotting
 import scipy
 import sklearn
+import sklearn.ensemble
 import sklearn.manifold
 
 pandas.plotting.register_matplotlib_converters()
@@ -543,11 +544,11 @@ def draw_general_data(verbose=False, relative=False):
         print("Drawing Done!!")
 
 
-def get_regression_general_data(column, is_drawing=True, verbose=False):
+def get_regression_general_data(column, is_drawing=False, verbose=False):
     """
     Regreesion general data. (Actual)
 
-    Get regression with general data by each columns. Save the best regression for further analysis. Returns score to find unusual events. Last modified: 2019-11-19T08:52:35+0900
+    Get regression with general data by each columns. Save the best regression for further analysis. Returns score to find unusual events. Last modified: 2019-11-21T23:27:40+0900
 
     Args:
         column (string): Mandatory. column name to regress.
@@ -582,34 +583,44 @@ def get_regression_general_data(column, is_drawing=True, verbose=False):
         _data.drop(columns=["Date/Time"], inplace=True)
         _values["Real"] = y_data
 
-        svr = sklearn.svm.SVR(gamma="scale")
-        svr.fit(_data, y_data)
-        _values["svr (%.2f)" % svr.score(_data, y_data)] = svr.predict(_data)
+        adaboost = sklearn.ensemble.AdaBoostRegressor(random_state=0)
+        adaboost.fit(_data, y_data)
 
-        _score, _value = svr.score(_data, y_data), svr.predict(_data)
+        _values["adaboost (%.2f)" % adaboost.score(_data, y_data)] = adaboost.predict(_data)
 
-        if verbose:
-            print("SVR:", _score)
+        _score, _value = adaboost.score(_data, y_data), adaboost.predict(_data)
 
-        nusvr = sklearn.svm.NuSVR(gamma="scale")
-        nusvr.fit(_data, y_data)
-        _values["nusvr (%.2f)" % nusvr.score(_data, y_data)] = nusvr.predict(_data)
+        bagging = sklearn.ensemble.BaggingRegressor(random_state=0, n_jobs=1)
+        bagging.fit(_data, y_data)
 
-        if verbose:
-            print("NuSVR:", nusvr.score(_data, y_data))
+        _values["bagging (%.2f)" % bagging.score(_data, y_data)] = bagging.predict(_data)
 
-        if _score < nusvr.score(_data, y_data):
-            _score, _value = nusvr.score(_data, y_data), nusvr.predict(_data)
+        if _score < bagging.score(_data, y_data):
+            _score, _value = bagging.score(_data, y_data), bagging.predict(_data)
 
-        linearsvr = sklearn.svm.LinearSVR(random_state=0, max_iter=10000)
-        linearsvr.fit(_data, y_data)
-        _values["linearsvr (%.2f)" % linearsvr.score(_data, y_data)] = linearsvr.predict(_data)
+        extratrees = sklearn.ensemble.ExtraTreesRegressor(random_state=0, n_jobs=1)
+        extratrees.fit(_data, y_data)
 
-        if verbose:
-            print("LinearSVR:", linearsvr.score(_data, y_data))
+        _values["extratrees (%.2f)" % extratrees.score(_data, y_data)] = extratrees.predict(_data)
 
-        if _score < linearsvr.score(_data, y_data):
-            _score, _value = linearsvr.score(_data, y_data), linearsvr.predict(_data)
+        if _score < extratrees.score(_data, y_data):
+            _score, _value = extratrees.score(_data, y_data), extratrees.predict(_data)
+
+        gradientboosting = sklearn.ensemble.GradientBoostingRegressor(random_state=0)
+        gradientboosting.fit(_data, y_data)
+
+        _values["gradientboosting (%.2f)" % gradientboosting.score(_data, y_data)] = gradientboosting.predict(_data)
+
+        if _score < gradientboosting.score(_data, y_data):
+            _score, _value = gradientboosting.score(_data, y_data), gradientboosting.predict(_data)
+
+        randomforest = sklearn.ensemble.RandomForestRegressor(random_state=0, n_jobs=1)
+        randomforest.fit(_data, y_data)
+
+        _values["randomforest (%.2f)" % randomforest.score(_data, y_data)] = randomforest.predict(_data)
+
+        if _score < randomforest.score(_data, y_data):
+            _score, _value = randomforest.score(_data, y_data), randomforest.predict(_data)
 
         with open(_pickle_file, "wb") as f:
             pickle.dump((_value, _values), f)
@@ -658,7 +669,7 @@ def regression_all_general_data(verbose=False, processes=100):
     print(values)
 
 
-def draw_movement_mobile_prox_data(verbose=False):
+def draw_movement_mobile_prox_mobile_prox_data(verbose=False):
     """
     Draw movement with mobile prox data.
 
@@ -706,7 +717,7 @@ def draw_movement_mobile_prox_data(verbose=False):
         print("Drawing Done!!")
 
 
-def calculate_movement(verbose=False):
+def calculate_movement_mobile_prox(verbose=False):
     """
     Calculate movement.
 
@@ -757,7 +768,7 @@ def calculate_movement(verbose=False):
         return _result
 
 
-def draw_movement(verbose=False):
+def draw_movement_mobile_prox(verbose=False):
     """
     Draw movement Distribution.
 
@@ -769,7 +780,7 @@ def draw_movement(verbose=False):
     Returns:
         None
     """
-    _data = calculate_movement()
+    _data = calculate_movement_mobile_prox()
     _values = sorted(list(_data.values()), reverse=True)
 
     matplotlib.use("Agg")
@@ -778,7 +789,7 @@ def draw_movement(verbose=False):
     matplotlib.pyplot.figure()
     matplotlib.pyplot.bar(range(len(_data)), _values)
 
-    matplotlib.pyplot.title("Movement Distribution")
+    matplotlib.pyplot.title("Movement Distribution with Mobile prox Data")
     matplotlib.pyplot.xlabel("Individual")
     matplotlib.pyplot.ylabel("Moving Distance")
     matplotlib.pyplot.xticks()
@@ -789,6 +800,26 @@ def draw_movement(verbose=False):
     fig.savefig(figure_directory + "MovementDistribution" + current_time() + ".png")
 
     matplotlib.pyplot.close()
+
+
+def draw_hazium_data(verbose=False, which=None):
+    """
+
+    """
+    if which is None:
+        which = get_hazium_data()
+
+    try:
+        which = list(which)
+    except TypeError:
+        which = [which]
+
+    for element in which:
+        if element not in get_hazium_data():
+            raise ValueError("Invalid argument")
+    else:
+        if verbose:
+            print("Good arguments")
 
 
 if __name__ == "__main__":
@@ -803,9 +834,11 @@ if __name__ == "__main__":
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
     # draw_general_data(verbose=True, relative=False)
-    # draw_movement_mobile_prox_data(verbose=True)
+    # draw_movement_mobile_prox_mobile_prox_data(verbose=True)
+    # draw_hazium_data(verbose=True, which=None)
 
-    # regression_all_general_data(verbose=True)
+    regression_all_general_data(verbose=True)
 
-    movement_information = calculate_movement(verbose=True)
-    draw_movement()
+    movement_information = calculate_movement_mobile_prox(verbose=True)
+    print(movement_information)
+    # draw_movement_mobile_prox(verbose=True)
