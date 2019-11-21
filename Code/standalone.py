@@ -111,6 +111,45 @@ def get_general_data(show=False):
     return _data
 
 
+def get_general_zscore_data(show=False):
+    """
+    Get general data with standardized.
+
+    Get general data with standardized. Save this for further analysis. Last modified: 2019-11-22T02:28:18+0900
+
+    Args:
+        show (bool): when this is true, show the data information before returning
+
+    Returns:
+        DataFrame: which contains standardized general building information
+    """
+    _pickle_file = ".general_zscore_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            _data = pickle.load(f)
+    else:
+        _data = get_general_data()
+        _data["Date/Time"] = list(map(lambda x: datetime.datetime.timestamp(x), _data["Date/Time"]))
+
+        will_drop = []
+        for column in _data.columns:
+            if len(pandas.unique(_data[column])) == 1:
+                will_drop.append(column)
+            else:
+                _data[column] = scipy.stats.zscore(_data[column])
+        else:
+            _data.drop(columns=will_drop, inplace=True)
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
+    if show:
+        print(_data.info())
+
+    return _data
+
+
 def get_hazium_data(data=None, show=False):
     """
     Get hazium information data.
@@ -558,7 +597,7 @@ def get_regression_general_data(column, is_drawing=False, verbose=False):
     Returns:
         List: The score of best the algorithm amongst the algorithms which are executed.
     """
-    _data = get_general_data()
+    _data = get_general_zscore_data()
     time_data = _data["Date/Time"]
     _values = dict()
 
@@ -673,7 +712,7 @@ def regression_all_general_data(verbose=False, processes=100):
     Returns:
 
     """
-    _data = get_general_data()
+    _data = get_general_zscore_data()
 
     with multiprocessing.Pool(processes=processes) as pool:
         values = pool.map(get_regression_general_data, list(_data.columns)[1:])
@@ -838,11 +877,12 @@ def draw_hazium_data(verbose=False, which=None):
 
 
 if __name__ == "__main__":
-    employee_data = get_employee_data(show=True)
-    general_data = get_general_data(show=True)
-    hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
-    fixed_prox_data = get_fixed_prox_data(show=True)
-    mobile_prox_data = get_mobile_prox_data(show=True)
+    # employee_data = get_employee_data(show=True)
+    # general_data = get_general_data(show=True)
+    # general_zscore_data = get_general_zscore_data(show=True)
+    # hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
+    # fixed_prox_data = get_fixed_prox_data(show=True)
+    # mobile_prox_data = get_mobile_prox_data(show=True)
 
     # draw_mobile_prox_data(verbose=True)
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
