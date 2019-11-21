@@ -14,8 +14,11 @@ import pandas
 import pandas.plotting
 import scipy
 import sklearn
+import sklearn.covariance
 import sklearn.ensemble
 import sklearn.manifold
+import sklearn.neighbors
+import sklearn.svm
 
 pandas.plotting.register_matplotlib_converters()
 
@@ -856,6 +859,47 @@ def draw_movement_mobile_prox(verbose=False):
     matplotlib.pyplot.close()
 
 
+def get_anormal_general_data(is_drawing=False, verbose=False):
+    """
+
+    """
+    _pickle_file = ".anormal_general_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            _tsne = pickle.load(f)
+    else:
+        if verbose:
+            print("Calculating...")
+
+        data = get_general_data()
+        data["Date/Time"] = list(map(lambda x: datetime.datetime.timestamp(x), data["Date/Time"]))
+
+        _tsne = get_tsne_general_data()
+
+        elliptic = sklearn.covariance.EllipticEnvelope(random_state=0)
+        _tsne["elliptic"] = list(map(lambda x: True if x == -1 else False, elliptic.fit_predict(data)))
+
+        oneclasssvm = sklearn.svm.OneClassSVM(gamma="scale")
+        _tsne["oneclasssvm"] = list(map(lambda x: True if x == -1 else False, oneclasssvm.fit_predict(data)))
+
+        isolationforest = sklearn.ensemble.IsolationForest(random_state=0, n_jobs=100)
+        _tsne["isolationforest"] = list(map(lambda x: True if x == -1 else False, isolationforest.fit_predict(data)))
+
+        localoutlier = sklearn.neighbors.LocalOutlierFactor(n_jobs=100)
+        _tsne["localoutlier"] = list(map(lambda x: True if x == -1 else False, localoutlier.fit_predict(data)))
+
+        if verbose:
+            print(_tsne)
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_tsne, f)
+
+    return _tsne
+
+
 def draw_hazium_data(verbose=False, which=None):
     """
 
@@ -888,11 +932,12 @@ if __name__ == "__main__":
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
+    anormal_general_data = get_anormal_general_data(is_drawing=True, verbose=True)
     # draw_general_data(verbose=True, relative=False)
     # draw_movement_mobile_prox_mobile_prox_data(verbose=True)
     # draw_hazium_data(verbose=True, which=None)
 
-    regression_all_general_data(verbose=True, processes=100)
+    # regression_all_general_data(verbose=True, processes=100)
 
     # movement_information = calculate_movement_mobile_prox(verbose=True)
     # draw_movement_mobile_prox(verbose=True)
