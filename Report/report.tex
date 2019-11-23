@@ -172,7 +172,25 @@
                 \label{fig:generalbuilding}
             \end{figure}
         
-            To find patterns which appear in the building data, we should find that normality/abnormality in the building data. To find abnormality, we used these four algorithms which are included in scikit-learn: \textit{EllipticEnvelope} \cite{ref:normal1}, \textit{OneClassSVM}, \textit{IsolationForest} \cite{ref:normal2, ref:normal3}, and \textit{LocalOutlierFactor} \cite{ref:normal4}.
+            To find patterns which appear in the building data, we should find that normality/abnormality in the building data. However, there are over 400 columns in the general building data; therefore, it is almost impossible to find abnormality column-by-column by human. Hence, we used these four algorithms which are included in scikit-learn: \textit{EllipticEnvelope} \cite{ref:normal1}, \textit{OneClassSVM}, \textit{IsolationForest} \cite{ref:normal2, ref:normal3}, and \textit{LocalOutlierFactor} \cite{ref:normal4}.
+            
+            \begin{figure}[htbp]
+                \centering
+                $\begin{array}{cccc}
+                    \includegraphics[width=0.2 \linewidth]{figures/outlier1.png}
+                    &
+                    \includegraphics[width=0.2 \linewidth]{figures/outlier2.png}
+                    &
+                    \includegraphics[width=0.2 \linewidth]{figures/outlier3.png}
+                    &
+                    \includegraphics[width=0.2 \linewidth]{figures/outlier4.png}
+                    \\
+                    
+                    \mbox{(a) \textit{EllipticEnvelope}} & \mbox{(b) \textit{OneClassSVM}} & \mbox{(c) \textit{IsolationForest}} & \mbox{(d) \textit{LocalOutlierFactor}}\\
+                \end{array}$
+                \caption{Abnormality Founded by Algorithms}
+                \label{fig:abnormal}
+            \end{figure}
         
         \subsection[Question 3]{Describe up to five notable anomalies or unusual events you see in the data. Prioritize those issue that are most likely to represent a danger or a serious issue for building operations.}
         
