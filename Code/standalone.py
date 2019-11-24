@@ -346,11 +346,11 @@ def draw_mobile_prox_data(verbose=True):
             print("Drawing Done!!")
 
 
-def get_tsne_mobile_prox_data(is_drawing=False, verbose=False):
+def get_tsne_prox_data(is_drawing=False, verbose=False):
     """
-    Get tsne with mobile prox data.
+    Get tsne with both prox data.
 
-    Calculate tsne with mobile prox data. Also, save the tnse for futher analysis. Last modified: 2019-11-18T15:10:48+0900
+    Calculate tsne with both prox data. Also, save the tnse for futher analysis. Last modified: 2019-11-25T00:19:34+0900
 
     Args:
         is_drawing (bool): If it is true, this function will draw the tsne plot.
@@ -370,7 +370,7 @@ def get_tsne_mobile_prox_data(is_drawing=False, verbose=False):
         if verbose:
             print("Make TSNE")
 
-        data = get_mobile_prox_data()
+        data = get_both_prox_data()
         data.drop(columns=["type", "prox-id"], inplace=True)
         data["timestamp"] = list(map(lambda x: datetime.datetime.timestamp(x), data["timestamp"]))
 
@@ -392,14 +392,14 @@ def get_tsne_mobile_prox_data(is_drawing=False, verbose=False):
         matplotlib.pyplot.figure()
         matplotlib.pyplot.scatter(_tsne["TSNE-1"], _tsne["TSNE-2"], alpha=0.3, s=100)
 
-        matplotlib.pyplot.title("TSNE of Mobile prox Data")
+        matplotlib.pyplot.title("TSNE of prox Data")
         matplotlib.pyplot.xlabel("Standardized TSNE-1")
         matplotlib.pyplot.ylabel("Standardized TSNE-2")
         matplotlib.pyplot.grid(True)
 
         fig = matplotlib.pyplot.gcf()
         fig.set_size_inches(24, 24)
-        fig.savefig(figure_directory + "TSNEMobileProxData" + current_time() + ".png")
+        fig.savefig(figure_directory + "TSNEProxData" + current_time() + ".png")
 
         matplotlib.pyplot.close()
 
@@ -421,7 +421,7 @@ def draw_tsne_mobile_prox_data_by_value(verbose=False):
     Returns:
         None
     """
-    _tsne = get_tsne_mobile_prox_data()
+    _tsne = get_tsne_prox_data()
     _data = get_mobile_prox_data()
 
     if verbose:
@@ -1104,7 +1104,7 @@ if __name__ == "__main__":
     # mobile_prox_data = get_mobile_prox_data(show=True)
 
     # draw_mobile_prox_data(verbose=True)
-    # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
+    tsne_prox_data = get_tsne_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
     # abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
@@ -1114,6 +1114,6 @@ if __name__ == "__main__":
 
     # regression_all_general_data(verbose=True, processes=100)
 
-    movement_information = calculate_movement(verbose=True)
+    # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    statistics(list(movement_information.values()))
+    # statistics(list(movement_information.values()))
