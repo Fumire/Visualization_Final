@@ -163,7 +163,7 @@
     
     \section{Results}
         \subsection[Question 1]{What are the typical patterns in the prox card data? What does a typical day look like for GAStech employees?}
-            First of all, we drew the distribution of movement distance as figure \ref{fig:movementdist}.
+            First of all, we drew the distribution of movement distance as figure \ref{fig:movementdist}. Also, the basic statistics values of movement distance is in table \ref{tb:movementdist}.
             
             \begin{figure}[htbp]
                 \centering
@@ -171,6 +171,16 @@
                 \caption{Distribution of Movement Distance}
                 \label{fig:movementdist}
             \end{figure}
+        
+            \begin{table}[htbp]
+                \centering
+                \caption{Basic Statistics Data within Movement Distance}
+                \label{tb:movementdist}
+                \begin{tabular}{c||c|c|c|c|c|c|c}
+                    Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
+                    Value & 902.44 & 19999.38 & 10083.95 & 5642.54 & 10688.57 & 14134.16 & 4750.46 \\
+                \end{tabular}
+            \end{table}
         
         \subsection[Question 2]{Describe up to five of the most interesting patterns that appear in the building data. Describe what is notable about the pattern and explain its possible significance.}
             First of all, we drew the distribution of the building data using TSNE technique. The TSNE plot of general building data is shows as figure \ref{fig:generalbuilding}.
