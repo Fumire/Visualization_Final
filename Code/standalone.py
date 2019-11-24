@@ -1079,7 +1079,16 @@ def get_abnormal_general_data(is_drawing=False, verbose=False):
 
 def draw_hazium_data(verbose=False, which=None):
     """
+    Draw hazium data.
 
+    Draw hazium data which is selected to draw. Last modified: 2019-11-25T08:40:17+0900
+
+    Args:
+        verbose (bool): Verbosity level
+        which (list of int): List to draw. If wrong argument is given, return correct arguments.
+
+    Returns:
+        None
     """
     if which is None:
         which = get_hazium_data()
@@ -1094,7 +1103,29 @@ def draw_hazium_data(verbose=False, which=None):
             raise ValueError("Invalid argument")
     else:
         if verbose:
-            print("Good arguments")
+            print("Good arguments:", which)
+
+    _data = [list(get_hazium_data(data=element)["Hazium Concentration"]) for element in which]
+    _name = [get_hazium_data()[element][get_hazium_data()[element].rfind("/") + 1:] for element in which]
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.pcolor(_data)
+
+    matplotlib.pyplot.title("Hazium Concentration")
+    matplotlib.pyplot.xlabel("Time")
+    matplotlib.pyplot.ylabel("Data Type")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.yticks(list(map(lambda x: x + 0.5, which)), _name)
+    matplotlib.pyplot.colorbar()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "Hazium" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
 
 
 def moving_distribution(verbose=False, minimum=0, maximum=100):
@@ -1181,5 +1212,6 @@ if __name__ == "__main__":
     # draw_movement(verbose=True)
     # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    for i in [0, 25, 50, 75]:
-        moving_distribution(verbose=True, minimum=i, maximum=i + 25)
+    # moving_distribution(verbose=True, minimum=0, maximum=25)
+
+    draw_hazium_data(verbose=True)
