@@ -85,10 +85,13 @@
     \newpage
     
     \section{Introduction}
+        In this term project, we have to answer several question with virtual building data. 
     
     \section{Materials}
         \subsection{Building Layout}
-            \subsubsection{Basic}
+            To analyzing movement data, we should find corresponding coordinate with zone data. To find matching coordinate, we calculate the approximate center of all zones, and consider the approximate center coordinate as representative of its zone. 
+        
+            \subsubsection{Main Layout}
                 \begin{figure}[htbp]
                     \centering
                     $\begin{array}{ccc}
@@ -107,6 +110,7 @@
             
                 The main layout of this building is as figure \ref{fig:main}. 
                 
+            \subsubsection{Energy Zone Layout}
                 \begin{figure}[htbp]
                     \centering
                     $\begin{array}{ccc}
@@ -125,6 +129,7 @@
             
                 The energy zone of this building is as figure \ref{fig:energy}. 
                 
+            \subsubsection{Prox Zone Layout}
                 \begin{figure}[htbp]
                     \centering
                     $\begin{array}{ccc}
@@ -142,8 +147,6 @@
                 \end{figure}
             
                 The prox zone of this building is as figure \ref{fig:prox}.
-                
-                To analyzing movement data, we should find corresponding coordinate with zone data. To find matching coordinate, we calculate the approximate center of all zones, and consider the approximate center coordinate as representative of its zone. 
     
     \section{Methods}
         \subsection{Python Packages}
@@ -183,7 +186,7 @@
                 \end{tabular}
             \end{table}
         
-            Hence, we divided prox data into four sub-group by percentile. Also, we drew the plot about movement direction and distance with each sub-group. 
+            Hence, we divided prox data into four sub-group by percentile. Also, we drew the plot about movement direction and distance with each sub-group as figures \ref{fig:movedd1}, \ref{fig:movedd2}, and \ref{fig:movedd3}. Note that the darkness of arrow is proportioned respect with number of duplicates. 
             
             \begin{figure}[htbp]
                 \centering
@@ -203,7 +206,7 @@
                 \label{fig:movedd1}
             \end{figure}
         
-            The movement direction and distance on the first floor is shows as figure \ref{fig:movedd1}. 
+            The movement direction and distance on the first floor is shows as figure \ref{fig:movedd1}. In figure \ref{fig:movedd1}-(b, c, d), you can see two arrows: one is left-upward arrow, the other is right-downward arrow. 
         
             \begin{figure}[htbp]
                 \centering
