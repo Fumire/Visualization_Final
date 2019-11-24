@@ -726,7 +726,7 @@ def regression_all_general_data(verbose=False, processes=100):
     print(values)
 
 
-def draw_movement_mobile_prox_mobile_prox_data(verbose=False):
+def draw_movement_mobile_prox_data(verbose=False):
     """
     Draw movement with mobile prox data.
 
@@ -774,11 +774,36 @@ def draw_movement_mobile_prox_mobile_prox_data(verbose=False):
         print("Drawing Done!!")
 
 
-def calculate_movement_mobile_prox(verbose=False):
+def change_zone_to_coordinates(changing_data, which=None):
+    """
+    Change zone data into coordinate.
+
+    Get data with zone data and add coordinate data into original data. Last modified: 2019-11-24T22:19:49+0900
+
+    Args:
+        changing_data (DataFrame): Mandatory. The DataFrame which contains zone data.
+        which (str): Mandatory. The zone data which is changed. If wrong argument is given, return correct argument.
+
+    Returns:
+        DataFrame: which contains coordinate data.
+    """
+    _data = {"prox": {1: {"1": (91, 56), "2": (24, 91), "3": (8, 40), "4": (79, 56), "5": (97, 94), "6": (96, 34), "7": (160, 8), "8": (182, 8)}, 2: {"1": (62, 56), "2": (19, 59), "3": (152, 103), "4": (79, 56), "5": (29, 35), "6": (129, 25), "7": (144, 81)}, 3: {"1": (59, 56), "2": (105, 56), "3": (15, 40), "4": (79, 56), "5": (165, 56), "6": (17, 100), "Server Room": (28, 23)}}, "energy": {1: {"1": (24, 91), "2": (97, 94), "3": (168, 84), "4": (170, 8), "5": (96, 34), "6": (82, 56), "7": (22, 28), "8": (82, 46)}, 2: {"1": (10, 103), "2": (97, 103), "3": (182, 101), "4": (182, 54), "5": (180, 8), "6": (92, 8), "7": (8, 10), "8": (8, 47), "9": (37, 58), "10": (108, 81), "11": (158, 81), "12A": (88, 84), "12B": (88, 58), "12C": (88, 32), "13": (79, 56), "14": (86, 34), "15": (161, 55), "16": (146, 33)}, 3: {"1": (15, 103), "2": (82, 103), "3": (99, 81), "4": (79, 56), "5": (96, 34), "6": (77, 8), "7": (8, 12), "8": (8, 60), "9": (31, 31), "10": (28, 64), "11A": (72, 83), "11B": (72, 57), "11C": (72, 37), "12": (165, 56)}}}
+
+    if which not in _data:
+        print("Select one:", list(_data.keys()))
+        raise ValueError
+
+    changing_data["x"] = [_data[which][f][z][0] for f, z in zip(changing_data["floor"], changing_data["zone"])]
+    changing_data["y"] = [_data[which][f][z][1] for f, z in zip(changing_data["floor"], changing_data["zone"])]
+
+    return changing_data
+
+
+def calculate_movement(verbose=False):
     """
     Calculate movement.
 
-    Calucate movement for each individual by ID. Save the result for further analysis.
+    Calucate movement for each individual by ID. Save the result for further analysis. Last modified: 2019-11-24T23:01:15+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -800,7 +825,16 @@ def calculate_movement_mobile_prox(verbose=False):
         if verbose:
             print("Calculating...")
 
-        _data = get_mobile_prox_data()
+        _mobile_data = get_mobile_prox_data()
+        _fixed_data = change_zone_to_coordinates(get_fixed_prox_data(), "prox")
+
+        _fixed_data.drop(columns=["zone"], inplace=True)
+        _data = pandas.concat([_mobile_data, _fixed_data], ignore_index=True, verify_integrity=True)
+        _data.sort_values(by="timestamp", inplace=True)
+
+        if verbose:
+            print(_data)
+
         _names = sorted(list(set(list(map(lambda x: x[:-3], _data["prox-id"])))))
         _result = dict()
 
@@ -825,7 +859,7 @@ def calculate_movement_mobile_prox(verbose=False):
         return _result
 
 
-def draw_movement_mobile_prox(verbose=False):
+def draw_movement(verbose=False):
     """
     Draw movement Distribution.
 
@@ -837,7 +871,7 @@ def draw_movement_mobile_prox(verbose=False):
     Returns:
         None
     """
-    _data = calculate_movement_mobile_prox()
+    _data = calculate_movement()
     _values = sorted(list(_data.values()), reverse=True)
 
     matplotlib.use("Agg")
@@ -1019,12 +1053,13 @@ if __name__ == "__main__":
     # tsne_mobile_prox_data = get_tsne_mobile_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
-    abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
+    # abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
     # draw_general_data(verbose=True, relative=False)
-    # draw_movement_mobile_prox_mobile_prox_data(verbose=True)
+    # draw_movement_mobile_prox_data(verbose=True)
     # draw_hazium_data(verbose=True, which=None)
 
     # regression_all_general_data(verbose=True, processes=100)
 
-    # movement_information = calculate_movement_mobile_prox(verbose=True)
-    # draw_movement_mobile_prox(verbose=True)
+    movement_information = calculate_movement(verbose=True)
+    print(sorted(list(movement_information.values()), reverse=True))
+    draw_movement(verbose=True)
