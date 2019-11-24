@@ -893,7 +893,7 @@ def draw_movement_distribution(verbose=False):
     matplotlib.pyplot.figure()
     matplotlib.pyplot.bar(range(len(_data)), _values)
 
-    matplotlib.pyplot.title("Movement Distribution with Mobile prox Data")
+    matplotlib.pyplot.title("Movement Distribution")
     matplotlib.pyplot.xlabel("Individual")
     matplotlib.pyplot.ylabel("Moving Distance")
     matplotlib.pyplot.xticks([])
@@ -1068,10 +1068,10 @@ if __name__ == "__main__":
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
     # abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
     # draw_general_data(verbose=True, relative=False)
-    draw_movement(verbose=True)
+    # draw_movement(verbose=True)
     # draw_hazium_data(verbose=True, which=None)
 
     # regression_all_general_data(verbose=True, processes=100)
 
-    # movement_information = calculate_movement(verbose=True)
-    # draw_movement_distribution(verbose=True)
+    movement_information = calculate_movement(verbose=True)
+    draw_movement_distribution(verbose=True)
