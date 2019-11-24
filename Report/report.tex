@@ -150,6 +150,8 @@
     
     \section{Methods}
         \subsection{Python Packages}
+            To analyze data, we used Python programming language. Also, we adopt many Python modules as hereinafter. 
+        
             \subsubsection{Scikit-learn: Machine Learning in Python}
                 \textit{Scikit-learn} is a Python module integrating a wide range of state-of-the-art machine learning algorithms for medium-scale supervised and unsupervised problems \cite{ref:sklearn1}.
                 
@@ -167,26 +169,43 @@
     
     \section{Results}
         \subsection[Question 1]{What are the typical patterns in the prox card data? What does a typical day look like for GAStech employees?}
-            First of all, we drew the distribution of movement distance as figure \ref{fig:movementdist}. Also, the basic statistics values, such as minimum, maximum, and average, of movement distance is in table \ref{tb:movementdist}.
+            \subsubsection{General Information of prox Data}
+                First of all, we drew the distribution of movement distance as figure \ref{fig:movementdist}. Also, the basic statistics values, such as minimum, maximum, and average, of movement distance is in table \ref{tb:movementdist}.
             
-            \begin{figure}[htbp]
-                \centering
-                \includegraphics[width=0.6 \linewidth]{figures/movementdistribution.png}
-                \caption{Distribution of Movement Distance}
-                \label{fig:movementdist}
-            \end{figure}
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=0.6 \linewidth]{figures/movementdistribution.png}
+                    \caption{Distribution of Movement Distance}
+                    \label{fig:movementdist}
+                \end{figure}
         
-            \begin{table}[htbp]
-                \centering
-                \caption{Basic Statistics Data within Movement Distance}
-                \label{tb:movementdist}
-                \begin{tabular}{c||c|c|c|c|c|c|c}
-                    Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
-                    Value & 902.44 & 19999.38 & 10083.95 & 5642.54 & 10688.57 & 14134.16 & 4750.46 \\
-                \end{tabular}
-            \end{table}
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Basic Statistics Data within Movement Distance}
+                    \label{tb:movementdist}
+                    \begin{tabular}{c||c|c|c|c|c|c|c}
+                        Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Value & 902.44 & 19999.38 & 10083.95 & 5642.54 & 10688.57 & 14134.16 & 4750.46 \\
+                    \end{tabular}
+                \end{table}
+            
+            \subsubsection{Workflow}
+                With the general information of prox data, we have decided our workflow for question 1 as figure \ref{fig:workflow1}.
+                
+                \begin{figure}[htbp]
+                    \centering
+                    \begin{tikzpicture}[node distance = 2cm, auto]
+                        \node[block](root1){Find quarter percentile};
+                        \node[cloud, below of=root1, left of=root1](q2){25\%-50\%};
+                        \node[cloud, below of=root1, right of=root1](q3){50\%-75\%};
+                        \node[cloud, left=1cm of q2](q1){0\%-25\%};
+                        \node[cloud, right=1cm of q3](q4){75\%-100\%};
+                    \end{tikzpicture}
+                    \caption{Workflow for Question 1}
+                    \label{fig:workflow1}
+                \end{figure}
         
-            Hence, we divided prox data into four sub-group by percentile. Also, we drew the plot about movement direction and distance with each sub-group as figures \ref{fig:movedd1}, \ref{fig:movedd2}, and \ref{fig:movedd3}. Note that the darkness of arrow is proportioned respect with number of duplicates. 
+            We drew the plot about movement direction and distance with each sub-group as figures \ref{fig:movedd1}, \ref{fig:movedd2}, and \ref{fig:movedd3}. Note that the darkness of arrow is proportioned respect with number of duplicates. 
             
             \begin{figure}[htbp]
                 \centering
