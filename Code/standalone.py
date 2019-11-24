@@ -67,7 +67,7 @@ def get_employee_data(show=False):
     """
     Get employee information.
 
-    Get employee information from data directory, and drop useless column. Save this with pickle format. Last modified: 2019-11-18T02:11:04+0900
+    Get employee information from data directory, and drop useless column. Save this with pickle format. Last modified: 2019-11-25T00:35:01+0900
 
     Args:
         show (bool): when this is true, show the data information before returning
@@ -88,6 +88,8 @@ def get_employee_data(show=False):
         _data.columns = list(map(lambda x: x.strip(), _data.columns))
         _data_obj = _data.select_dtypes(["object"])
         _data[_data_obj.columns] = _data_obj.apply(lambda x: x.str.strip())
+
+        _data["prox-id"] = [(f[0] + l).lower() for l, f in zip(_data["Last Name"], _data["First Name"])]
 
         with open(_pickle_file, "wb") as f:
             pickle.dump(_data, f)
@@ -1104,7 +1106,7 @@ if __name__ == "__main__":
     # mobile_prox_data = get_mobile_prox_data(show=True)
 
     # draw_mobile_prox_data(verbose=True)
-    tsne_prox_data = get_tsne_prox_data(is_drawing=True, verbose=True)
+    # tsne_prox_data = get_tsne_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
     # abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
