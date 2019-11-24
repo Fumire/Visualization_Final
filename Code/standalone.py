@@ -726,49 +726,62 @@ def regression_all_general_data(verbose=False, processes=100):
     print(values)
 
 
-def draw_movement_mobile_prox_data(verbose=False):
+def draw_movement(verbose=False):
     """
     Draw movement with mobile prox data.
 
-    Draw movement with mobile prox data by each individuals. Start point will be shown as red mark, and final point will be shown as blue mark. Last modified: 2019-11-20T19:17:16+0900
+    Draw movement with mobile prox data by each individuals. Start point will be shown as red mark, and final point will be shown as blue mark. Last modified: 2019-11-24T23:24:56+0900
     """
     if verbose:
         print("Drawing movement")
 
-    _data = get_mobile_prox_data()
+    _mobile_data = get_mobile_prox_data()
+    _fixed_data = change_zone_to_coordinates(get_fixed_prox_data(), "prox")
+
+    _fixed_data.drop(columns=["zone"], inplace=True)
+    _data = pandas.concat([_mobile_data, _fixed_data], ignore_index=True, verify_integrity=True)
+    _data.sort_values(by="timestamp", inplace=True)
+
     _names = sorted(list(set(list(map(lambda x: x[:-3], _data["prox-id"])))))
+    _floors = sorted(list(set(_data["floor"])))
 
     for num, name in enumerate(_names):
         if verbose:
             print(">> Drawing:", name)
 
-        drawing_data = _data[(_data["prox-id"].str.contains(name))]
-        x_data = list(drawing_data["x"])
-        y_data = list(drawing_data["y"])
+        for floor in _floors:
+            if verbose:
+                print(">>>> Floor:", floor)
 
-        matplotlib.use("Agg")
-        matplotlib.rcParams.update({"font.size": 30})
+            drawing_data = _data[(_data["prox-id"].str.contains(name)) & (_data["floor"] == floor)]
+            x_data = list(drawing_data["x"])
+            y_data = list(drawing_data["y"])
 
-        matplotlib.pyplot.figure()
-        for i in range(1, len(x_data)):
-            if x_data[i - 1] == x_data[i] and y_data[i - 1] == y_data[i]:
-                continue
-            matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=0.7, length_includes_head=True, head_width=3, head_length=3, color="k")
-        matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="X", c="r")
-        matplotlib.pyplot.scatter(x_data[-1], y_data[-1], s=1000, marker="X", c="b")
+            matplotlib.use("Agg")
+            matplotlib.rcParams.update({"font.size": 30})
 
-        matplotlib.pyplot.title("Movement of " + name)
-        matplotlib.pyplot.xlabel("X")
-        matplotlib.pyplot.ylabel("Y")
-        matplotlib.pyplot.xlim(0, _x_limit)
-        matplotlib.pyplot.ylim(0, _y_limit)
-        matplotlib.pyplot.grid(True)
+            matplotlib.pyplot.figure()
+            for i in range(1, len(x_data)):
+                if x_data[i - 1] == x_data[i] and y_data[i - 1] == y_data[i]:
+                    continue
+                matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=0.7, length_includes_head=True, head_width=3, head_length=3, color="k")
 
-        fig = matplotlib.pyplot.gcf()
-        fig.set_size_inches(32, 18)
-        fig.savefig(figure_directory + "Movement_" + str(num) + current_time() + ".png")
+            if len(x_data) > 0:
+                matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="X", c="r")
+                matplotlib.pyplot.scatter(x_data[-1], y_data[-1], s=1000, marker="X", c="b")
 
-        matplotlib.pyplot.close()
+            matplotlib.pyplot.title("Movement of " + name + " in " + str(floor) + " floor")
+            matplotlib.pyplot.xlabel("X")
+            matplotlib.pyplot.ylabel("Y")
+            matplotlib.pyplot.xlim(0, _x_limit)
+            matplotlib.pyplot.ylim(0, _y_limit)
+            matplotlib.pyplot.grid(True)
+
+            fig = matplotlib.pyplot.gcf()
+            fig.set_size_inches(32, 18)
+            fig.savefig(figure_directory + "Movement_" + str(num) + "_" + str(floor) + current_time() + ".png")
+
+            matplotlib.pyplot.close()
 
     if verbose:
         print("Drawing Done!!")
@@ -859,7 +872,7 @@ def calculate_movement(verbose=False):
         return _result
 
 
-def draw_movement(verbose=False):
+def draw_movement_distribution(verbose=False):
     """
     Draw movement Distribution.
 
@@ -883,7 +896,7 @@ def draw_movement(verbose=False):
     matplotlib.pyplot.title("Movement Distribution with Mobile prox Data")
     matplotlib.pyplot.xlabel("Individual")
     matplotlib.pyplot.ylabel("Moving Distance")
-    matplotlib.pyplot.xticks()
+    matplotlib.pyplot.xticks([])
     matplotlib.pyplot.grid(True)
 
     fig = matplotlib.pyplot.gcf()
@@ -1055,11 +1068,10 @@ if __name__ == "__main__":
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
     # abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
     # draw_general_data(verbose=True, relative=False)
-    # draw_movement_mobile_prox_data(verbose=True)
+    draw_movement(verbose=True)
     # draw_hazium_data(verbose=True, which=None)
 
     # regression_all_general_data(verbose=True, processes=100)
 
-    movement_information = calculate_movement(verbose=True)
-    print(sorted(list(movement_information.values()), reverse=True))
-    draw_movement(verbose=True)
+    # movement_information = calculate_movement(verbose=True)
+    # draw_movement_distribution(verbose=True)
