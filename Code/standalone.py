@@ -779,7 +779,7 @@ def draw_movement(verbose=False):
 
             matplotlib.pyplot.figure()
             for i in range(1, len(x_data)):
-                if x_data[i - 1] == x_data[i] and y_data[i - 1] == y_data[i]:
+                if (x_data[i - 1] == x_data[i]) and (y_data[i - 1] == y_data[i]):
                     continue
                 matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=0.7, length_includes_head=True, head_width=3, head_length=3, color="k")
 
@@ -1097,6 +1097,69 @@ def draw_hazium_data(verbose=False, which=None):
             print("Good arguments")
 
 
+def moving_distribution(verbose=False, minimum=0, maximum=100):
+    """
+    Moving distribution upon selected percentile.
+
+    Draw movement of selected percentile id. Last modified: 2019-11-25T02:38:22+0900
+
+    Args:
+        verbose (bool): Verbosity level
+        minimum (int): minimum percentile for drawing
+        maximum (int): maximum percentile for drawing
+
+    Returns:
+        None
+    """
+    _moving_data = get_both_prox_data()
+
+    _distance_data = calculate_movement()
+    minimum_value, maximum_value = numpy.nanpercentile(list(_distance_data.values()), minimum), numpy.nanpercentile(list(_distance_data.values()), maximum)
+    _names = list(filter(lambda x: (_distance_data[x] >= minimum_value) and (_distance_data[x] <= maximum_value), list(_distance_data.keys())))
+
+    if verbose:
+        print("Selected ID:", len(_names))
+
+    for floor in sorted(list(set(_moving_data["floor"]))):
+        if verbose:
+            print(">> Drawing:", floor, "floor")
+
+        x_min, x_max = 0, 0
+        y_min, y_max = 0, 0
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        for name in _names:
+            drawing_data = _moving_data[(_moving_data["prox-id"].str.contains(name)) & (_moving_data["floor"] == floor)]
+            x_data = list(drawing_data["x"])
+            y_data = list(drawing_data["y"])
+
+            for i in range(1, len(x_data)):
+                if (x_data[i - 1] == x_data[i]) and (y_data[i - 1] == y_data[i]):
+                    continue
+                dx, dy = x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1]
+
+                matplotlib.pyplot.arrow(0, 0, dx, dy, alpha=1 / len(x_data), length_includes_head=True, head_width=3, head_length=3, color="k")
+
+                x_min, x_max = dx if dx < x_min else x_min, dx if dx > x_max else x_max
+                y_min, y_max = dy if dy < y_min else y_min, dy if dy > y_max else y_max
+
+        matplotlib.pyplot.title("Movement Direction/Distance of " + str(minimum) + "%-" + str(maximum) + "%")
+        matplotlib.pyplot.xlabel("X")
+        matplotlib.pyplot.ylabel("Y")
+        matplotlib.pyplot.xlim(x_min * 1.1, x_max * 1.1)
+        matplotlib.pyplot.ylim(y_min * 1.1, y_max * 1.1)
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "GeneralMovement_" + str(floor) + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -1111,11 +1174,12 @@ if __name__ == "__main__":
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
     # abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
     # draw_general_data(verbose=True, relative=False)
-    # draw_movement(verbose=True)
     # draw_hazium_data(verbose=True, which=None)
 
     # regression_all_general_data(verbose=True, processes=100)
 
+    # draw_movement(verbose=True)
     # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    # statistics(list(movement_information.values()))
+    for i in [0, 25, 50, 75]:
+        moving_distribution(verbose=True, minimum=i, maximum=i + 25)
