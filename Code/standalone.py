@@ -10,6 +10,7 @@ import pickle
 import time
 import matplotlib
 import matplotlib.pyplot
+import numpy
 import pandas
 import pandas.plotting
 import scipy
@@ -41,6 +42,25 @@ def current_time():
         String: the time in the string format
     """
     return "_" + time.strftime("%m%d%H%M%S")
+
+
+def statistics(data):
+    """
+    Basic statistics.
+
+    Give basic statistics along the given data.
+
+    Args:
+        data (list): List of values which is used for statistics.
+
+    Returns:
+        None
+    """
+    print("Min:", numpy.nanmin(data))
+    print("Max:", numpy.nanmax(data))
+    print("Average:", numpy.nanmean(data))
+    print("25%, 50%, 75%:", numpy.nanpercentile(data, 25), numpy.nanpercentile(data, 50), numpy.nanpercentile(data, 75))
+    print("std:", numpy.nanstd(data))
 
 
 def get_employee_data(show=False):
@@ -735,12 +755,7 @@ def draw_movement(verbose=False):
     if verbose:
         print("Drawing movement")
 
-    _mobile_data = get_mobile_prox_data()
-    _fixed_data = change_zone_to_coordinates(get_fixed_prox_data(), "prox")
-
-    _fixed_data.drop(columns=["zone"], inplace=True)
-    _data = pandas.concat([_mobile_data, _fixed_data], ignore_index=True, verify_integrity=True)
-    _data.sort_values(by="timestamp", inplace=True)
+    _data = get_both_prox_data()
 
     _names = sorted(list(set(list(map(lambda x: x[:-3], _data["prox-id"])))))
     _floors = sorted(list(set(_data["floor"])))
@@ -1100,4 +1115,5 @@ if __name__ == "__main__":
     # regression_all_general_data(verbose=True, processes=100)
 
     movement_information = calculate_movement(verbose=True)
-    draw_movement_distribution(verbose=True)
+    # draw_movement_distribution(verbose=True)
+    statistics(list(movement_information.values()))
