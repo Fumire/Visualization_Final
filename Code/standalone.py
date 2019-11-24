@@ -812,6 +812,37 @@ def change_zone_to_coordinates(changing_data, which=None):
     return changing_data
 
 
+def get_both_prox_data(verbose=True):
+    """
+    Get both prox data.
+
+    Get mobile / fixed prox data. Return merged data. Last modified: 2019-11-24T23:38:16+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        DataFrame: which contains mobile / fixed prox data.
+    """
+    _pickle_file = ".prox_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            return pickle.load(f)
+    else:
+        _mobile_data = get_mobile_prox_data()
+        _fixed_data = change_zone_to_coordinates(get_fixed_prox_data(), "prox")
+
+        _fixed_data.drop(columns=["zone"], inplace=True)
+        _data = pandas.concat([_mobile_data, _fixed_data], ignore_index=True, verify_integrity=True)
+        _data.sort_values(by=["timestamp"], inplace=True)
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
+        return _data
+
+
 def calculate_movement(verbose=False):
     """
     Calculate movement.
@@ -838,12 +869,7 @@ def calculate_movement(verbose=False):
         if verbose:
             print("Calculating...")
 
-        _mobile_data = get_mobile_prox_data()
-        _fixed_data = change_zone_to_coordinates(get_fixed_prox_data(), "prox")
-
-        _fixed_data.drop(columns=["zone"], inplace=True)
-        _data = pandas.concat([_mobile_data, _fixed_data], ignore_index=True, verify_integrity=True)
-        _data.sort_values(by="timestamp", inplace=True)
+        _data = get_both_prox_data()
 
         if verbose:
             print(_data)
