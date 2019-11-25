@@ -1246,6 +1246,114 @@ def moving_distribution(verbose=False, minimum=0, maximum=100):
         matplotlib.pyplot.close()
 
 
+def get_tsne_floor_data(floor=None, is_drawing=False, verbose=False):
+    """
+
+    """
+    _file_name = {0: "general", 1: "floor1", 2: "floor2", 3: "floor3"}
+    if floor not in _file_name:
+        print("Invalid argument:", list(_file_name.keys()))
+        raise ValueError
+
+    _pickle_file = ".tsne_floor" + str(floor) + ".pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            _tsne = pickle.load(f)
+    else:
+        _data = get_floor_data(floor=floor)
+        _data.drop(columns=["type"], inplace=True)
+        _data["Date/Time"] = list(map(lambda x: datetime.datetime.timestamp(x), _data["Date/Time"]))
+
+        _tsne = pandas.DataFrame(data=sklearn.manifold.TSNE(n_components=2, random_state=0).fit_transform(_data), columns=["TSNE-1", "TSNE-2"])
+        _tsne["TSNE-1"] = scipy.stats.zscore(_tsne["TSNE-1"])
+        _tsne["TSNE-2"] = scipy.stats.zscore(_tsne["TSNE-2"])
+        _tsne["id"] = _data.index
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_tsne, f)
+
+    if is_drawing:
+        if verbose:
+            print("Drawing TSNE")
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.scatter(_tsne["TSNE-1"], _tsne["TSNE-2"], alpha=0.3, s=100)
+
+        matplotlib.pyplot.title("TSNE of " + _file_name[floor])
+        matplotlib.pyplot.xlabel("Standardized TSNE-1")
+        matplotlib.pyplot.ylabel("Standardized TSNE-2")
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "TsneFloor_" + _file_name[floor] + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    return _tsne
+
+def r_value(x, y):
+    """
+
+    """
+    return scipy.stats.linregress(x, y)[2]
+
+def draw_correlation_with_general_data(verbose=False, processes=100):
+    """
+
+    """
+    _pickle_file = ".correlation_general.pkl"
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            _values = pickle.load(f)
+    else:
+        if verbose:
+            print("Calculate R value")
+
+        _general_data = get_general_data()
+        _general_data.drop(columns=["Date/Time"], inplace=True)
+
+        _columns = sorted(list(_general_data.columns))
+        _values = list()
+
+        with multiprocessing.Pool(processes=processes) as pool:
+            for x in _columns:
+                if verbose:
+                    print(">> Calculate:", x)
+                _values.append(pool.starmap(r_value, [(_general_data[x], _general_data[y]) for y in _columns]))
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_values, f)
+
+    if verbose:
+        print(len(_values), len(_values[0]))
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.pcolor(_values)
+
+    matplotlib.pyplot.title("Correlation within General Data")
+    matplotlib.pyplot.xlabel("Columns")
+    matplotlib.pyplot.ylabel("Columns")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.yticks([])
+    matplotlib.pyplot.colorbar()
+
+    fig =matplotlib.pyplot.gcf()
+    fig.set_size_inches(30, 24)
+    fig.savefig(figure_directory + "CorrelationGeneral" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -1272,6 +1380,6 @@ if __name__ == "__main__":
     # draw_hazium_data(verbose=True)
     # floor_data = get_floor_data(floor=2, verbose=True)
 
-    floor_data = [get_floor_data(floor=i, verbose=True) for i in range(4)]
-    for data in floor_data:
-        print(len(data.columns))
+    # floor_data = [get_floor_data(floor=i, verbose=True) for i in range(4)]
+
+    draw_correlation_with_general_data(verbose=True)
