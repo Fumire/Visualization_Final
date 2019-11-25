@@ -29,7 +29,6 @@ figure_directory = "figures/"
 
 _x_limit, _y_limit = 189, 111
 
-
 def current_time():
     """
     Get current time.
@@ -1315,7 +1314,7 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     """
     Draw correlation with general data.
 
-    Draw correlation with each general data. Draw heatmap about R values between all columns. Last modified: 2019-11-25T21:24:46+0900
+    Draw correlation with each general data. Draw heatmap about R values between all columns. Last modified: 2019-11-25T22:06:34+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -1334,7 +1333,7 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
         if verbose:
             print("Calculate R value")
 
-        _general_data = get_general_data()
+        _general_data = get_general_zscore_data()
         _general_data.drop(columns=["Date/Time"], inplace=True)
 
         _columns = sorted(list(_general_data.columns))
@@ -1351,6 +1350,9 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
         with open(_pickle_file, "wb") as f:
             pickle.dump(_values, f)
 
+    if verbose:
+        print("Heatmap")
+
     matplotlib.use("Agg")
     matplotlib.rcParams.update({"font.size": 30})
 
@@ -1364,11 +1366,56 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     matplotlib.pyplot.yticks([])
     matplotlib.pyplot.colorbar()
 
-    fig =matplotlib.pyplot.gcf()
+    fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(30, 24)
     fig.savefig(figure_directory + "CorrelationGeneral" + current_time() + ".png")
 
     matplotlib.pyplot.close()
+
+    if verbose:
+        print("Bar graph")
+
+    flat = _values.values.flatten()
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.bar(range(len(flat)), sorted(flat, reverse=True))
+
+    matplotlib.pyplot.title("R-value Distribution")
+    matplotlib.pyplot.xlabel("Index")
+    matplotlib.pyplot.ylabel("R-value")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "RvalueDistribution" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+    if verbose:
+        statistics(flat)
+
+    if verbose:
+        _columns = sorted(list(_values.columns))
+        _extrema = list()
+        _number = 5
+
+        for x in _columns:
+            for y in _columns:
+                if x == y:
+                    break
+                _extrema.append((_values[x][y], x, y))
+
+        print("Minima:", _number)
+        for v, x, y in sorted(_extrema)[:_number]:
+            print(x, "&", y, "&", v, "\\\\")
+
+        print("Maxima:", _number)
+        for v, x, y in sorted(_extrema, reverse=True)[:_number]:
+            print(x, "&", y, "&", v, "\\\\")
 
     return _values
 
@@ -1401,4 +1448,4 @@ if __name__ == "__main__":
 
     # floor_data = [get_floor_data(floor=i, verbose=True) for i in range(4)]
 
-    print(draw_correlation_with_general_data(verbose=True))
+    general_correlation_data = draw_correlation_with_general_data(verbose=True)
