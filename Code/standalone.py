@@ -1298,13 +1298,31 @@ def get_tsne_floor_data(floor=None, is_drawing=False, verbose=False):
 
 def r_value(x, y):
     """
+    Return r_value.
 
+    This function will calculate R value. Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.linregress.html. Last modified: 2019-11-25T21:23:30+0900
+
+    Args:
+        x (list): List of values.
+        y (list): List of values.
+
+    Returns:
+        float: which is calculated R value
     """
     return scipy.stats.linregress(x, y)[2]
 
 def draw_correlation_with_general_data(verbose=False, processes=100):
     """
+    Draw correlation with general data.
 
+    Draw correlation with each general data. Draw heatmap about R values between all columns. Last modified: 2019-11-25T21:24:46+0900
+
+    Args:
+        verbose (bool): Verbosity level
+        processes (int): Number of threads.
+
+    Returns:
+        DataFrame: which contains R values between all columns
     """
     _pickle_file = ".correlation_general.pkl"
     if os.path.exists(_pickle_file):
@@ -1328,11 +1346,10 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
                     print(">> Calculate:", x)
                 _values.append(pool.starmap(r_value, [(_general_data[x], _general_data[y]) for y in _columns]))
 
+        _values = pandas.DataFrame(data=_values, index=_columns, columns=_columns)
+
         with open(_pickle_file, "wb") as f:
             pickle.dump(_values, f)
-
-    if verbose:
-        print(len(_values), len(_values[0]))
 
     matplotlib.use("Agg")
     matplotlib.rcParams.update({"font.size": 30})
@@ -1352,6 +1369,8 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     fig.savefig(figure_directory + "CorrelationGeneral" + current_time() + ".png")
 
     matplotlib.pyplot.close()
+
+    return _values
 
 
 if __name__ == "__main__":
@@ -1382,4 +1401,4 @@ if __name__ == "__main__":
 
     # floor_data = [get_floor_data(floor=i, verbose=True) for i in range(4)]
 
-    draw_correlation_with_general_data(verbose=True)
+    print(draw_correlation_with_general_data(verbose=True))
