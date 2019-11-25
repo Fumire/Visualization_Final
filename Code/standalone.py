@@ -68,8 +68,9 @@ def get_floor_data(floor=None, verbose=False):
     """
 
     """
-    if floor not in [1, 2, 3]:
-        print("Invalid argument")
+    _file_name = {0: "general", 1: "floor1", 2: "floor2", 3: "floor3"}
+    if floor not in _file_name:
+        print("Invalid argument:", list(_file_name.keys()))
         raise ValueError
 
     _pickle_file = ".floor" + str(floor) + ".pkl"
@@ -82,9 +83,9 @@ def get_floor_data(floor=None, verbose=False):
         if verbose:
             print("Making:", floor)
 
-        _data_location = data_directory + "BuildingProxSensorData/json/floor" + str(floor) + "-MC2.json"
+        _data_location = data_directory + "BuildingProxSensorData/json/" + _file_name[floor] + "-MC2.json"
 
-        if floor == 1:
+        if floor in [0, 1]:
             with open(_data_location, "r") as f:
                 _original_data = json.load(f)
 
@@ -1257,6 +1258,6 @@ if __name__ == "__main__":
     # draw_hazium_data(verbose=True)
     # floor_data = get_floor_data(floor=2, verbose=True)
 
-    floor_data = [get_floor_data(floor=i, verbose=True) for i in range(1, 4)]
+    floor_data = [get_floor_data(floor=i, verbose=True) for i in range(4)]
     for data in floor_data:
         print(len(data.columns))
