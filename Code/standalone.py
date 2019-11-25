@@ -3,6 +3,7 @@ Standalone
 """
 
 import datetime
+import json
 import math
 import multiprocessing
 import os
@@ -61,6 +62,45 @@ def statistics(data):
     print("Average:", numpy.nanmean(data))
     print("25%, 50%, 75%:", numpy.nanpercentile(data, 25), numpy.nanpercentile(data, 50), numpy.nanpercentile(data, 75))
     print("std:", numpy.nanstd(data))
+
+
+def get_floor_data(floor=None, verbose=False):
+    """
+
+    """
+    if floor not in [1, 2, 3]:
+        print("Invalid argument")
+        raise ValueError
+
+    _pickle_file = ".floor" + str(floor) + ".pkl"
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            _data = pickle.load(f)
+    else:
+        if verbose:
+            print("Making:", floor)
+
+        _data_location = data_directory + "BuildingProxSensorData/json/floor" + str(floor) + "-MC2.json"
+
+        if floor == 1:
+            with open(_data_location, "r") as f:
+                _original_data = json.load(f)
+
+            _data = pandas.concat(objs=[pandas.DataFrame.from_dict(data=data["message"], orient="index").T for data in _original_data], ignore_index=True, verify_integrity=True)
+        else:
+            _data = pandas.read_json(_data_location)
+
+        _data["Date/Time"] = pandas.to_datetime(_data["Date/Time"])
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
+    if verbose:
+        print(_data.info())
+
+    return _data
 
 
 def get_employee_data(show=False):
@@ -1214,4 +1254,9 @@ if __name__ == "__main__":
     # draw_movement_distribution(verbose=True)
     # moving_distribution(verbose=True, minimum=0, maximum=25)
 
-    draw_hazium_data(verbose=True)
+    # draw_hazium_data(verbose=True)
+    # floor_data = get_floor_data(floor=2, verbose=True)
+
+    floor_data = [get_floor_data(floor=i, verbose=True) for i in range(1, 4)]
+    for data in floor_data:
+        print(len(data.columns))
