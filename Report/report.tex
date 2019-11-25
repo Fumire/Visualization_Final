@@ -163,12 +163,13 @@
                 
             \subsubsection{SciPy}
                 \textit{SciPy} is a Python-based ecosystem of open-source software for mathematics, science, and engineering \cite{ref:scipy1}.
-            
+                
         \subsection{TSNE}
             T-distributed Stochastic Neighbor Embedding (TSNE) is a machine learning algorithm for visualization high-dimensional data in a low-dimensional space \cite{ref:tsne1}.
     
     \section{Results}
         \subsection[Question 1]{What are the typical patterns in the prox card data? What does a typical day look like for GAStech employees?}
+            \label{sec:question1}
             \subsubsection{General Information of prox Data}
                 First of all, we drew the distribution of movement distance as figure \ref{fig:movementdist}. Also, the basic statistics values, such as minimum, maximum, and average, of movement distance is in table \ref{tb:movementdist}.
             
@@ -280,14 +281,15 @@
             \subsubsection{Typical Day Look for GAStech employees}
         
         \subsection[Question 2]{Describe up to five of the most interesting patterns that appear in the building data. Describe what is notable about the pattern and explain its possible significance.}
-            \subsubsection{General Information of Building Data}
-                First of all, we drew the distribution of the building data using TSNE technique. The TSNE plot of general building data is shows as figure \ref{fig:generalbuilding}.
-            
+            \label{sec:question2}
+            \subsubsection{General Information of General Building Data}
+                First of section \ref{sec:question2}, we should find about the distribution of general building data. With TSNE technique, we can draw the TSNE plot of general building data as 
+                
                 \begin{figure}[htbp]
                     \centering
-                    \includegraphics[width=0.3 \linewidth]{figures/TsneGeneral.png}
-                    \caption{TSNE Plot for General Building Data}
-                    \label{fig:generalbuilding}
+                    \includegraphics[width=0.5 \linewidth]{figures/TsneGeneral.png}
+                    \caption{TSNE for General Building Data}
+                    \label{fig:tsnegeneral}
                 \end{figure}
             
             \subsubsection{Workflow}
@@ -299,55 +301,24 @@
                     \label{fig:workflow2}
                 \end{figure}
  
-            \subsubsection{Find Abnormality in General Data}       
-                To find patterns which appear in the building data, we should find that normality/abnormality in the building data. However, there are over 400 columns in the general building data; therefore, it is almost impossible to find abnormality column-by-column by human. Hence, we used these four algorithms which are included in scikit-learn: \textit{EllipticEnvelope} \cite{ref:normal1}, \textit{OneClassSVM}, \textit{IsolationForest} \cite{ref:normal2, ref:normal3}, and \textit{LocalOutlierFactor} \cite{ref:normal4}.
-            
+            \subsubsection{Correlation within General Building Data} 
+                We made the correlation heatmap within the general building data to find two columns which have strong positive or negative correlation. The correlation heatmap is as figure \ref{fig:correlationgeneral}.  
+                
                 \begin{figure}[htbp]
                     \centering
-                    $\begin{array}{cc}
-                        \includegraphics[width=0.3 \linewidth]{figures/outlier1.png}
-                        &
-                        \includegraphics[width=0.3 \linewidth]{figures/outlier2.png}
-                        \\
-                        
-                        \mbox{(a) \textit{EllipticEnvelope}} & \mbox{(b) \textit{OneClassSVM}} \\
-                        
-                        \includegraphics[width=0.3 \linewidth]{figures/outlier3.png}
-                        &
-                        \includegraphics[width=0.3 \linewidth]{figures/outlier4.png}
-                        \\
-                        
-                        \mbox{(c) \textit{IsolationForest}} & \mbox{(d) \textit{LocalOutlierFactor}}\\
-                    \end{array}$
-                    \caption{Abnormality Founded by Algorithms}
-                    \label{fig:abnormal}
+                    \includegraphics[width=0.5 \linewidth]{figures/correlationgeneral.png}
+                    \caption{Correlation Heatmap within General Building Data}
+                    \label{fig:correlationgeneral}
                 \end{figure}
-        
-                Abnormality founded is shows as figure \ref{fig:abnormal}. Note that some data were considered as abnormal in multiple algorithms; however, no data were considered as abnormal in all algorithms. Moreover, with the data in figure \ref{fig:abnormal}, we can display the timeline of abnormality as figure \ref{fig:abnormaltime}.
-            
-                \begin{figure}[htbp]
-                    \centering
-                    $\begin{array}{cc}
-                        \includegraphics[width=0.4 \linewidth]{figures/normaltime1.png}
-                        &
-                        \includegraphics[width=0.4 \linewidth]{figures/normaltime2.png}
-                        \\
-                        
-                        \mbox{(a)} & \mbox{(b)} \\
-                    \end{array}$
-                    \caption{Abnormality by Timeline}
-                    \label{fig:abnormaltime}
-                \end{figure}
-            
-                In the figure \ref{fig:abnormaltime}-(a), we can know that which algorithm consider specific time as abnormal events (yellow marked is abnormal); and, in the figure \ref{fig:abnormaltime}-(b), we can realize that how many algorithms consider specific time as abnormal events. 
                 
             \subsubsection{Plots of Average General Data}
             
             \subsubsection{Interesting Patterns}
         
         \subsection[Question 3]{Describe up to five notable anomalies or unusual events you see in the data. Prioritize those issue that are most likely to represent a danger or a serious issue for building operations.}
+            \label{sec:question3}
             \subsubsection{General Information of Hazium Concentration}
-                In the question 3, we need to find a danger or a serious issue for building data. Hence, we suppose that a danger will be related with Hazium concentration.
+                In the question 2 or section \ref{sec:question2}, we need to find a danger or a serious issue for building data. Hence, we suppose that a danger will be related with Hazium concentration.
                 
                 \begin{figure}[htbp]
                     \centering
@@ -367,13 +338,35 @@
                     \label{fig:workflow3}
                 \end{figure}
             
+            \subsubsection{Find Abnormality in General Building Data}       
+                To find patterns which appear in the building data, we should find that normality/abnormality in the building data. However, there are over 400 columns in the general building data; therefore, it is almost impossible to find abnormality column-by-column by human. Hence, we used these four algorithms which are included in scikit-learn: \textit{EllipticEnvelope} \cite{ref:normal1}, \textit{OneClassSVM}, \textit{IsolationForest} \cite{ref:normal2, ref:normal3}, and \textit{LocalOutlierFactor} \cite{ref:normal4}.
+            
+                Moreover, with the data in figure \ref{fig:abnormal}, we can display the timeline of abnormality as figure \ref{fig:abnormaltime}.
+                
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{cc}
+                    \includegraphics[width=0.4 \linewidth]{figures/normaltime1.png}
+                    &
+                    \includegraphics[width=0.4 \linewidth]{figures/normaltime2.png}
+                    \\
+                    
+                    \mbox{(a)} & \mbox{(b)} \\
+                    \end{array}$
+                    \caption{Abnormality by Timeline}
+                    \label{fig:abnormaltime}
+                \end{figure}
+                
+                In the figure \ref{fig:abnormaltime}-(a), we can know that which algorithm consider specific time as abnormal events (yellow marked is abnormal); and, in the figure \ref{fig:abnormaltime}-(b), we can realize that how many algorithms consider specific time as abnormal events.
+            
             \subsubsection{Abnormality of Hazium Data}
             
-            \subsubsection{Correlation between Hazium Data and General Building Data}
+            \subsubsection{Correlation between General Building Data and Hazium Data}
             
             \subsubsection{Danger for Building Operation}
         
         \subsection[Question 4]{Describe up to three observed relationships between the proximity card data and building data elements. If you find a causal relationship, describe your discovered cause and effect, the evidence you found the support it, and your level of confidence in your assessment of the relationship.}
+            \label{sec:question4}
             \subsubsection{General Information of Moving Average for General Building Data}
             
             \subsubsection{Workflow}
