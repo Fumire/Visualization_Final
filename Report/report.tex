@@ -287,7 +287,7 @@
                 
                 \begin{figure}[htbp]
                     \centering
-                    \includegraphics[width=0.5 \linewidth]{figures/TsneGeneral.png}
+                    \includegraphics[width=0.4 \linewidth]{figures/TsneGeneral.png}
                     \caption{TSNE for General Building Data}
                     \label{fig:tsnegeneral}
                 \end{figure}
@@ -302,14 +302,32 @@
                 \end{figure}
  
             \subsubsection{Correlation within General Building Data} 
-                We made the correlation heatmap within the general building data to find two columns which have strong positive or negative correlation. The correlation heatmap is as figure \ref{fig:correlationgeneral}.  
+                We made the correlation heatmap within the general building data to find two columns which have strong positive or negative correlation. The correlation heatmap is as figure \ref{fig:correlationgeneral}. Moreover, the R-value distribution with the data which are used in figure \ref{fig:correlationgeneral} is as shown as figure \ref{fig:rgeneral}.
                 
                 \begin{figure}[htbp]
                     \centering
-                    \includegraphics[width=0.5 \linewidth]{figures/correlationgeneral.png}
+                    \includegraphics[width=0.4 \linewidth]{figures/correlationgeneral.png}
                     \caption{Correlation Heatmap within General Building Data}
                     \label{fig:correlationgeneral}
                 \end{figure}
+            
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=0.5 \linewidth]{figures/rgeneral.png}
+                    \caption{R-value Distribution within General Building Data}
+                    \label{fig:rgeneral}
+                \end{figure}
+            
+                The basic statistics of these R-values are in table \ref{tb:rgeneral}.
+                
+                \begin{table}[htbp]
+                    \caption{Basic Statistics of R-Values}
+                    \label{tb:rgeneral}
+                    \begin{tabular}{c||c|c|c|c|c|c|c}
+                        Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Value & -0.88 & 1.0 & 0.11 & -0.12 & 0.08 & 0.34 & 0.36 \\
+                    \end{tabular}
+                \end{table}
                 
             \subsubsection{Plots of Average General Data}
             
