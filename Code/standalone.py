@@ -66,7 +66,16 @@ def statistics(data):
 
 def get_floor_data(floor=None, verbose=False):
     """
+    Get floor data from json files.
 
+    Get floor data from json files. Make them ready to use. Save this with pickle format. Last modified: 2019-11-25T09:31:19+0900
+
+    Args:
+        floor (int): This should be one of {0, 1, 2, 3}. If wrong argument is given, correct arguments will be shown.
+        verbose (bool): Verbosity level
+
+    Returns:
+        DataFrame: which contains floor data from json file.
     """
     _file_name = {0: "general", 1: "floor1", 2: "floor2", 3: "floor3"}
     if floor not in _file_name:
@@ -90,6 +99,11 @@ def get_floor_data(floor=None, verbose=False):
                 _original_data = json.load(f)
 
             _data = pandas.concat(objs=[pandas.DataFrame.from_dict(data=data["message"], orient="index").T for data in _original_data], ignore_index=True, verify_integrity=True)
+
+            for column in list(set(_data.columns)):
+                if column in ["Date/Time", "type"]:
+                    continue
+                _data[column] = list(map(lambda x: float(x), list(_data[column])))
         else:
             _data = pandas.read_json(_data_location)
 
