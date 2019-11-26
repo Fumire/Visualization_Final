@@ -1402,7 +1402,7 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     if verbose:
         _columns = sorted(list(_values.columns))
         _extrema = list()
-        _number = 5
+        _number = 10
 
         for x in _columns:
             for y in _columns:
@@ -1463,7 +1463,15 @@ def draw_stacked_general_data(verbose=False):
 
 def draw_average_general_data(verbose=False):
     """
+    Draw average value of general data.
 
+    Draw average value of general data with timeline. Last modifided: 2019-11-27T00:45:33+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
     """
 
     _general_data = get_general_zscore_data()
@@ -1491,7 +1499,15 @@ def draw_average_general_data(verbose=False):
 
 def draw_median_general_data(verbose=False):
     """
+    Draw median value of general data.
 
+    Draw median value of general data with timeline. Last modified: 2019-11-27T00:46:20+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
     """
     _general_data = get_general_zscore_data()
     _x_data = _general_data["Date/Time"]
@@ -1518,7 +1534,15 @@ def draw_median_general_data(verbose=False):
 
 def draw_ultimate_general_data(verbose=True):
     """
+    Draw statistics value of general data.
 
+    Draw statistics value of general data, such as average, median, quantile value. Last modified: 2019-11-27T00:47:20+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
     """
     _general_data = get_general_zscore_data()
     _x_data = _general_data["Date/Time"]
@@ -1575,8 +1599,8 @@ if __name__ == "__main__":
 
     # floor_data = [get_floor_data(floor=i, verbose=True) for i in range(4)]
 
-    # general_correlation_data = draw_correlation_with_general_data(verbose=True)
+    general_correlation_data = draw_correlation_with_general_data(verbose=True)
     # draw_stacked_general_data(verbose=True)
     # draw_average_general_data(verbose=True)
     # draw_median_general_data(verbose=True)
-    draw_ultimate_general_data(verbose=True)
+    # draw_ultimate_general_data(verbose=True)
