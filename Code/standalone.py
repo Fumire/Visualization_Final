@@ -933,7 +933,7 @@ def calculate_movement(verbose=False):
     """
     Calculate movement.
 
-    Calucate movement for each individual by ID. Save the result for further analysis. Last modified: 2019-11-24T23:01:15+0900
+    Calucate movement for each individual by ID. Save the result for further analysis. Last modified: 2019-11-27T03:16:57+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -1209,7 +1209,7 @@ def draw_hazium_data(verbose=False, which=None):
     matplotlib.pyplot.close()
 
 
-def moving_distribution(verbose=False, minimum=0, maximum=100):
+def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
     """
     Moving distribution upon selected percentile.
 
@@ -1230,7 +1230,9 @@ def moving_distribution(verbose=False, minimum=0, maximum=100):
     _names = list(filter(lambda x: (_distance_data[x] >= minimum_value) and (_distance_data[x] <= maximum_value), list(_distance_data.keys())))
 
     if verbose:
-        print("Selected ID:", len(_names))
+        print("Selected IDs:", len(_names))
+        print("Min:", minimum_value)
+        print("Max:", maximum_value)
 
     for floor in sorted(list(set(_moving_data["floor"]))):
         if verbose:
@@ -1270,6 +1272,19 @@ def moving_distribution(verbose=False, minimum=0, maximum=100):
         fig.savefig(figure_directory + "GeneralMovement_" + str(floor) + current_time() + ".png")
 
         matplotlib.pyplot.close()
+
+    if verbose:
+        print("Drawing Done!!")
+
+    if verbose:
+        _employee_data = get_employee_data()
+        _employee_data = _employee_data.loc[(_employee_data["prox-id"].isin(_names))]
+
+        _department_information = dict()
+        for department in set(_employee_data["Department"]):
+            _department_information[department] = _employee_data.loc[_employee_data["Department"] == department].count()["Department"]
+
+        print(_department_information)
 
 
 def get_tsne_floor_data(floor=None, is_drawing=False, verbose=False):
@@ -1627,9 +1642,9 @@ if __name__ == "__main__":
     # regression_all_general_data(verbose=True, processes=100)
 
     #draw_movement(verbose=True, different_alpha=False)
-    movement_information = calculate_movement(verbose=True)
+    # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    # moving_distribution(verbose=True, minimum=0, maximum=25)
+    [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
 
     # draw_hazium_data(verbose=True)
     # floor_data = get_floor_data(floor=2, verbose=True)
