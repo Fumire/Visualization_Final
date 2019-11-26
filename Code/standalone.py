@@ -1343,7 +1343,8 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
             for x in _columns:
                 if verbose:
                     print(">> Calculate:", x)
-                _values.append(pool.starmap(r_value, [(_general_data[x], _general_data[y]) for y in _columns]))
+                data = _general_data.sort_values(by=x, kind="mergesort")
+                _values.append(pool.starmap(r_value, [(data[x], data[y]) for y in _columns]))
 
         _values = pandas.DataFrame(data=_values, index=_columns, columns=_columns)
 
@@ -1420,6 +1421,132 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     return _values
 
 
+def draw_stacked_general_data(verbose=False):
+    """
+
+    """
+    if verbose:
+        print("Stacked General Data")
+
+    _general_data = get_general_zscore_data()
+    _x_data = _general_data["Date/Time"]
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+
+    _columns = sorted(list(_general_data.columns))
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    for column in _columns:
+        if verbose:
+            print(">>", column)
+        matplotlib.pyplot.plot(_x_data, _general_data[column], alpha=1 / len(_columns), c="b")
+
+    matplotlib.pyplot.title("Stacked General Data")
+    matplotlib.pyplot.xlabel("Time")
+    matplotlib.pyplot.ylabel("Value (Standardized)")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.ylim(-5, 5)
+    matplotlib.pyplot.grid(True)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "StackedGeneral" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
+    if verbose:
+        print("Drawing Done!!")
+
+
+def draw_average_general_data(verbose=False):
+    """
+
+    """
+
+    _general_data = get_general_zscore_data()
+    _x_data = _general_data["Date/Time"]
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.plot(_x_data, _general_data.mean(axis=1))
+
+    matplotlib.pyplot.title("Average of General Data")
+    matplotlib.pyplot.xlabel("Time")
+    matplotlib.pyplot.ylabel("Value (Standardized)")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "AverageGeneral" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
+def draw_median_general_data(verbose=False):
+    """
+
+    """
+    _general_data = get_general_zscore_data()
+    _x_data = _general_data["Date/Time"]
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.plot(_x_data, _general_data.median(axis=1))
+
+    matplotlib.pyplot.title("Median of General Data")
+    matplotlib.pyplot.xlabel("Time")
+    matplotlib.pyplot.ylabel("Value (Standardized)")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "MedianGeneral" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
+def draw_ultimate_general_data(verbose=True):
+    """
+
+    """
+    _general_data = get_general_zscore_data()
+    _x_data = _general_data["Date/Time"]
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.plot(_x_data, _general_data.mean(axis=1), label="average")
+    matplotlib.pyplot.plot(_x_data, _general_data.median(axis=1), label="median")
+    matplotlib.pyplot.plot(_x_data, _general_data.quantile(q=0.25, axis="columns"), label="q1")
+    matplotlib.pyplot.plot(_x_data, _general_data.quantile(q=0.75, axis="columns"), label="q3")
+
+    matplotlib.pyplot.title("Statistics of General Data")
+    matplotlib.pyplot.xlabel("Time")
+    matplotlib.pyplot.ylabel("Value (Standardized)")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+    matplotlib.pyplot.legend()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "UltimateGeneral" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -1448,4 +1575,8 @@ if __name__ == "__main__":
 
     # floor_data = [get_floor_data(floor=i, verbose=True) for i in range(4)]
 
-    general_correlation_data = draw_correlation_with_general_data(verbose=True)
+    # general_correlation_data = draw_correlation_with_general_data(verbose=True)
+    # draw_stacked_general_data(verbose=True)
+    # draw_average_general_data(verbose=True)
+    # draw_median_general_data(verbose=True)
+    draw_ultimate_general_data(verbose=True)
