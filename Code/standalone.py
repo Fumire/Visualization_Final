@@ -9,7 +9,9 @@ import multiprocessing
 import os
 import pickle
 import time
+import PIL
 import matplotlib
+import matplotlib.image
 import matplotlib.pyplot
 import numpy
 import pandas
@@ -832,12 +834,18 @@ def draw_movement(verbose=False):
             matplotlib.rcParams.update({"font.size": 30})
 
             matplotlib.pyplot.figure()
+
+            img = PIL.Image.open(data_directory + "Building Layout/Prox Zones/F" + str(floor) + ".jpg")
+            img = img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+            img.thumbnail((_x_limit, _y_limit))
+            matplotlib.pyplot.imshow(img)
+
             for i in range(1, len(x_data)):
                 if (x_data[i - 1] == x_data[i]) and (y_data[i - 1] == y_data[i]):
                     continue
-                matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=0.7, length_includes_head=True, head_width=3, head_length=3, color="k")
+                matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=5 / len(x_data), length_includes_head=True, head_width=3, head_length=3, color="k")
 
-            if len(x_data) > 0:
+            if x_data:
                 matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="X", c="r")
                 matplotlib.pyplot.scatter(x_data[-1], y_data[-1], s=1000, marker="X", c="b")
 
@@ -1402,7 +1410,7 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     if verbose:
         _columns = sorted(list(_values.columns))
         _extrema = list()
-        _number = 10
+        _number = 5
 
         for x in _columns:
             for y in _columns:
@@ -1415,7 +1423,9 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
             print(x, "&", y, "&", v, "\\\\")
 
         print("Maxima:", _number)
-        for v, x, y in sorted(_extrema, reverse=True)[:_number]:
+        for v, x, y in sorted(_extrema, reverse=True):
+            if v != 1:
+                break
             print(x, "&", y, "&", v, "\\\\")
 
     return _values
@@ -1423,7 +1433,15 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
 
 def draw_stacked_general_data(verbose=False):
     """
+    Draw general builidng data in stacked form.
 
+    Draw general building data in stacked form. Last modified: 2019-11-27T00:55:32+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
     """
     if verbose:
         print("Stacked General Data")
@@ -1589,7 +1607,7 @@ if __name__ == "__main__":
 
     # regression_all_general_data(verbose=True, processes=100)
 
-    # draw_movement(verbose=True)
+    draw_movement(verbose=True)
     # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
     # moving_distribution(verbose=True, minimum=0, maximum=25)
@@ -1599,7 +1617,7 @@ if __name__ == "__main__":
 
     # floor_data = [get_floor_data(floor=i, verbose=True) for i in range(4)]
 
-    general_correlation_data = draw_correlation_with_general_data(verbose=True)
+    # general_correlation_data = draw_correlation_with_general_data(verbose=True)
     # draw_stacked_general_data(verbose=True)
     # draw_average_general_data(verbose=True)
     # draw_median_general_data(verbose=True)
