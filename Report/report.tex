@@ -308,11 +308,11 @@
                 \end{figure}
             
             \subsubsection{Department Distribution}
-                Table \ref{tb:movequantile} shows the distribution of department by quantile. 
+                Table \ref{tb:movequantile} shows the distribution of department by quartiles. Also, with the data in table \ref{tb:movequantile}, we drew the four pie plots as \ref{fig:department}.
                 
                 \begin{table}[htbp]
                     \centering
-                    \caption{Department Information by Quantile}
+                    \caption{Department Information by Quartiles}
                     \label{tb:movequantile}
                     \begin{tabular}{c|cc}
                         Quantile & Department & Counts \\ \hline
@@ -335,6 +335,24 @@
                         & Security & 1 \\
                     \end{tabular}
                 \end{table}
+                
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{cccc}
+                        \includegraphics[width=0.2 \linewidth]{figures/department1.png}
+                        &
+                        \includegraphics[width=0.2 \linewidth]{figures/department2.png}
+                        &
+                        \includegraphics[width=0.2 \linewidth]{figures/department3.png}
+                        &
+                        \includegraphics[width=0.2 \linewidth]{figures/department4.png}
+                        \\
+                        
+                        \mbox{(a)} & \mbox{(b)} & \mbox{(c)} & \mbox{(d)} \\
+                    \end{array}$
+                    \caption{Pie Plot of Department Distribution by Quartiles}
+                    \label{fig:department}
+                \end{figure}
             
             \subsubsection{Typical Patterns in prox Data}
             
@@ -343,7 +361,7 @@
         \subsection[Question 2]{Describe up to five of the most interesting patterns that appear in the building data. Describe what is notable about the pattern and explain its possible significance.}
             \label{sec:question2}
             \subsubsection{General Information of General Building Data}
-                First of section \ref{sec:question2}, we should find about the distribution of general building data. With TSNE technique, we can draw the TSNE plot of general building data as 
+                First of section \ref{sec:question2}, we should find about the distribution of general building data. With TSNE technique, we can draw the TSNE plot of general building data as figure \ref{fig:tsnegeneral}.
                 
                 \begin{figure}[htbp]
                     \centering
