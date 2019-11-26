@@ -11,6 +11,7 @@
 \usepackage{tikz}
 \usepackage{listings, listing}
 \usepackage{color}
+\usepackage{longtable}
 
 \usetikzlibrary{shapes, arrows, calc, positioning}
 \definecolor{codegreen}{rgb}{0, 0.6, 0}
@@ -166,6 +167,9 @@
                 
         \subsection{TSNE}
             T-distributed Stochastic Neighbor Embedding (TSNE) is a machine learning algorithm for visualization high-dimensional data in a low-dimensional space \cite{ref:tsne1}.
+         
+        \subsection{Standardization}
+            Note that, in this analysis, all values are standardized. In other words, all values are adjusted for the mean value is zero, and standard deviation is 1. If all values in one columns are same, then the column will be discarded. 
     
     \section{Results}
         \subsection[Question 1]{What are the typical patterns in the prox card data? What does a typical day look like for GAStech employees?}
@@ -325,9 +329,336 @@
                     \label{tb:rgeneral}
                     \begin{tabular}{c||c|c|c|c|c|c|c}
                         Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
-                        Value & -0.88 & 1.0 & 0.11 & -0.12 & 0.08 & 0.34 & 0.36 \\
+                        Value & -0.88 & 1.0 & 0.11 & -0.12 & 0.08 & 0.34 & 0.37 \\
                     \end{tabular}
                 \end{table}
+            
+                Furthermore, the extreme values of R-values are in tables \ref{tb:rmin} and \ref{tb:rmax}.
+                
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Minimum Values of R-Values}
+                    \label{tb:rmin}
+                    \begin{tabular}{c|c||c}
+                        Column1 & Column2 & R-Value \\ \hline
+                        F\_3\_Z\_11C: Thermostat Temp & F\_3\_Z\_11B VAV REHEAT Damper Position & -0.877076318455652 \\
+                        F\_3\_Z\_11C: Thermostat Temp & F\_3\_Z\_11B SUPPLY INLET Mass Flow Rate & -0.8770746421685551 \\
+                        Supply Side Inlet Temperature & F\_3\_Z\_6: Equipment Power & -0.8764301266869379 \\
+                        Supply Side Inlet Temperature & F\_3\_Z\_6: Lights Power & -0.8764301266869379 \\
+                        Supply Side Inlet Temperature & F\_1\_Z\_4: Lights Power & -0.8743564507417133 \\
+                    \end{tabular}
+                \end{table}
+            
+                \begin{longtable}{c|c||c}
+                    \caption{Maximum Values of R-Values} \\
+                    \label{tb:rmax}
+                    Column1 & Column2 & R-Value \\ \hline
+                    \endhead
+                    Water Heater Tank Temperature & Supply Side Outlet Temperature & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Heating Setpoint & F\_3\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Heating Setpoint & F\_3\_Z\_2: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Heating Setpoint & F\_3\_Z\_11B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Heating Setpoint & F\_3\_Z\_11A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Heating Setpoint & F\_3\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Cooling Setpoint & F\_3\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Cooling Setpoint & F\_3\_Z\_2: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Cooling Setpoint & F\_3\_Z\_11B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Cooling Setpoint & F\_3\_Z\_11A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_7: Thermostat Cooling Setpoint & F\_3\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_6: Thermostat Heating Setpoint & F\_3\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_6: Thermostat Cooling Setpoint & F\_3\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_6: Lights Power & F\_3\_Z\_6: Equipment Power & 1.0 \\
+                    F\_3\_Z\_5: Lights Power & F\_3\_Z\_5: Equipment Power & 1.0 \\
+                    F\_3\_Z\_3: Thermostat Heating Setpoint & F\_3\_Z\_2: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_3: Thermostat Heating Setpoint & F\_3\_Z\_11B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_3: Thermostat Heating Setpoint & F\_3\_Z\_11A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_3: Thermostat Heating Setpoint & F\_3\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_3: Thermostat Cooling Setpoint & F\_3\_Z\_2: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_3: Thermostat Cooling Setpoint & F\_3\_Z\_11B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_3: Thermostat Cooling Setpoint & F\_3\_Z\_11A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_3: Thermostat Cooling Setpoint & F\_3\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_3: Lights Power & F\_3\_Z\_3: Equipment Power & 1.0 \\
+                    F\_3\_Z\_2: Thermostat Heating Setpoint & F\_3\_Z\_11B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_2: Thermostat Heating Setpoint & F\_3\_Z\_11A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_2: Thermostat Heating Setpoint & F\_3\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_2: Thermostat Cooling Setpoint & F\_3\_Z\_11B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_2: Thermostat Cooling Setpoint & F\_3\_Z\_11A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_2: Thermostat Cooling Setpoint & F\_3\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_2: Lights Power & F\_3\_Z\_2: Equipment Power & 1.0 \\
+                    F\_3\_Z\_1: Lights Power & F\_3\_Z\_1: Equipment Power & 1.0 \\
+                    F\_3\_Z\_11B: Thermostat Heating Setpoint & F\_3\_Z\_11A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_11B: Thermostat Heating Setpoint & F\_3\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_11B: Thermostat Cooling Setpoint & F\_3\_Z\_11A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_11B: Thermostat Cooling Setpoint & F\_3\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_11A: Thermostat Heating Setpoint & F\_3\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_3\_Z\_11A: Thermostat Cooling Setpoint & F\_3\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_3\_Z\_10: Lights Power & F\_3\_Z\_10: Equipment Power & 1.0 \\
+                    F\_3\_VAV\_SYS Outdoor Air Mass Flow Rate & F\_3\_BATH\_EXHAUST:Fan Power & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_7: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_15: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_12C: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_12B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_12A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_7: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_15: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_12C: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_12B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_12A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_9: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_8: Thermostat Heating Setpoint & F\_2\_Z\_4: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_8: Thermostat Heating Setpoint & F\_2\_Z\_2: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_8: Thermostat Cooling Setpoint & F\_2\_Z\_4: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_8: Thermostat Cooling Setpoint & F\_2\_Z\_2: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_8: Lights Power & F\_2\_Z\_8: Equipment Power & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_15: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_12C: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_12B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_12A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_15: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_12C: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_12B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_12A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_7: Lights Power & F\_2\_Z\_7: Equipment Power & 1.0 \\
+                    F\_2\_Z\_6: Lights Power & F\_2\_Z\_6: Equipment Power & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_2\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_2\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_2\_Z\_15: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_2\_Z\_12C: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_2\_Z\_12B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_2\_Z\_12A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_2\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_2\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_2\_Z\_15: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_2\_Z\_12C: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_2\_Z\_12B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_2\_Z\_12A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_5: Lights Power & F\_2\_Z\_5: Equipment Power & 1.0 \\
+                    F\_2\_Z\_4: Thermostat Heating Setpoint & F\_2\_Z\_2: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_4: Thermostat Cooling Setpoint & F\_2\_Z\_2: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_4: Lights Power & F\_2\_Z\_4: Equipment Power & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_2\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_2\_Z\_15: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_2\_Z\_12C: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_2\_Z\_12B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_2\_Z\_12A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_2\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_2\_Z\_15: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_2\_Z\_12C: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_2\_Z\_12B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_2\_Z\_12A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_3: Lights Power & F\_2\_Z\_3: Equipment Power & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_2\_Z\_15: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_2\_Z\_12C: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_2\_Z\_12B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_2\_Z\_12A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_2\_Z\_15: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_2\_Z\_12C: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_2\_Z\_12B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_2\_Z\_12A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_1: Lights Power & F\_2\_Z\_1: Equipment Power & 1.0 \\
+                    F\_2\_Z\_16: Lights Power & F\_2\_Z\_16: Equipment Power & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_2\_Z\_12C: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_2\_Z\_12B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_2\_Z\_12A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_2\_Z\_12C: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_2\_Z\_12B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_2\_Z\_12A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_15: Lights Power & F\_2\_Z\_15: Equipment Power & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_2\_Z\_12B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_2\_Z\_12A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_2\_Z\_12B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_2\_Z\_12A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12C: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Heating Setpoint & F\_2\_Z\_12A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Cooling Setpoint & F\_2\_Z\_12A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12B: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Heating Setpoint & F\_2\_Z\_11: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Cooling Setpoint & F\_2\_Z\_11: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_12A: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Heating Setpoint & F\_2\_Z\_10: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Cooling Setpoint & F\_2\_Z\_10: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_11: Lights Power & F\_2\_Z\_11: Equipment Power & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Heating Setpoint & F\_1\_Z\_8B: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Cooling Setpoint & F\_1\_Z\_8B: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_2\_Z\_10: Lights Power & F\_2\_Z\_10: Equipment Power & 1.0 \\
+                    F\_1\_Z\_8B: Thermostat Heating Setpoint & F\_1\_Z\_8A: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_8B: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_8B: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_8B: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_8B: Thermostat Cooling Setpoint & F\_1\_Z\_8A: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_8B: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_8B: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_8B: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_8A: Thermostat Heating Setpoint & F\_1\_Z\_5: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_8A: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_8A: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_8A: Thermostat Cooling Setpoint & F\_1\_Z\_5: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_8A: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_8A: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_7: Thermostat Heating Setpoint & F\_1\_Z\_4: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_7: Thermostat Cooling Setpoint & F\_1\_Z\_4: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_7: Lights Power & F\_1\_Z\_7: Equipment Power & 1.0 \\
+                    F\_1\_Z\_5: Thermostat Heating Setpoint & F\_1\_Z\_3: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_5: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_5: Thermostat Cooling Setpoint & F\_1\_Z\_3: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_5: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_5: Lights Power & F\_1\_Z\_5: Equipment Power & 1.0 \\
+                    F\_1\_Z\_4: Lights Power & F\_1\_Z\_4: Equipment Power & 1.0 \\
+                    F\_1\_Z\_3: Thermostat Heating Setpoint & F\_1\_Z\_1: Thermostat Heating Setpoint & 1.0 \\
+                    F\_1\_Z\_3: Thermostat Cooling Setpoint & F\_1\_Z\_1: Thermostat Cooling Setpoint & 1.0 \\
+                    F\_1\_Z\_2: Lights Power & F\_1\_Z\_2: Equipment Power & 1.0 \\
+                    F\_1\_Z\_1: Lights Power & F\_1\_Z\_1: Equipment Power & 1.0 \\
+                \end{longtable}
                 
             \subsubsection{Plots of General Building Data}
             
