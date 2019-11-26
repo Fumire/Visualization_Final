@@ -193,6 +193,36 @@
                     \end{tabular}
                 \end{table}
             
+                Furthermore, the extreme value of moving information is in tables \ref{tb:movemin} and \ref{tb:movemax}.
+                
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Minimum Moving Employees}
+                    \label{tb:movemin}
+                    \begin{tabular}{c|c}
+                        Moving Distance & ID \\ \hline
+                        902.4411338142776 & earpa \\
+                        1482.4411338142788 & vawelon \\
+                        1667.820095117141 & jfrost \\
+                        2550.198060545332 & ibarranco \\
+                        3233.4833039729083 & cstaley \\
+                    \end{tabular}
+                \end{table}
+            
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Maximum Moving Employees}
+                    \label{tb:movemax}
+                    \begin{tabular}{c|c}
+                        Moving Distance & ID \\ \hline
+                        19999.386059326014 & chawelon \\
+                        17719.3756100877 & hmies \\
+                        17507.957735800737 & eminto \\
+                        17478.788651971503 & monda \\
+                        17302.863257165674 & ldedos \\
+                    \end{tabular}
+                \end{table}
+            
             \subsubsection{Workflow}
                 With the general information of prox data, we have decided our workflow for question 1 as figure \ref{fig:workflow1}.
                 
@@ -383,7 +413,13 @@
                     \end{tabular}
                 \end{table}
                 
-                As table \ref{tb:rmin}, no combination of columns make R-value to zero. However, as table \ref{tb:rmax}, there are many combinations of columns make R-value 1. In other words, many columns have strong positive correlation with others. However, in table \ref{tb:rmax}, most of combination are (Thermostat Heating Setpoint), (Thermostat Cooling Setpoint), or (Lights Power \& Equipment power). 
+                As table \ref{tb:rmin}, no combination of columns make R-value to zero. However, as table \ref{tb:rmax}, there are many combinations of columns make R-value 1. In other words, many columns have strong positive correlation with others. However, in table \ref{tb:rmax}, most of combination are (Thermostat Heating Setpoint), (Thermostat Cooling Setpoint), or (Lights Power \& Equipment power). Also, not all Thermostat Setpoints in same floor have strong correlation; but, Thermostat Setpoints in different floor do not have strong correlation. 
+                
+                According to these fact, we can know followings:
+                \begin{enumerate}
+                    \item \textit{Thermostat Setpoint} is controlled by floor.
+                    \item Some zone only have lights for power consumption. 
+                \end{enumerate}
                 
             \subsubsection{Plots of General Building Data}
             
