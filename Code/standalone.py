@@ -804,11 +804,18 @@ def regression_all_general_data(verbose=False, processes=100):
     print(values)
 
 
-def draw_movement(verbose=False):
+def draw_movement(verbose=False, different_alpha=True):
     """
     Draw movement with mobile prox data.
 
     Draw movement with mobile prox data by each individuals. Start point will be shown as red mark, and final point will be shown as blue mark. Last modified: 2019-11-24T23:24:56+0900
+
+    Args:
+        verbose (bool): Verbosity level
+        different_alpha (bool): Use different alpha, or not.
+
+    Returns:
+        None
     """
     if verbose:
         print("Drawing movement")
@@ -843,7 +850,7 @@ def draw_movement(verbose=False):
             for i in range(1, len(x_data)):
                 if (x_data[i - 1] == x_data[i]) and (y_data[i - 1] == y_data[i]):
                     continue
-                matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=5 / len(x_data), length_includes_head=True, head_width=3, head_length=3, color="k")
+                matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=5 / len(x_data) if different_alpha else 0.5, length_includes_head=True, head_width=3, head_length=3, color="k")
 
             if x_data:
                 matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="X", c="r")
@@ -943,7 +950,7 @@ def calculate_movement(verbose=False):
         if verbose:
             print("Pickle exists")
         with open(_pickle_file, "rb") as f:
-            return pickle.load(f)
+            _result = pickle.load(f)
     else:
         if verbose:
             print("Calculating...")
@@ -974,7 +981,19 @@ def calculate_movement(verbose=False):
         with open(_pickle_file, "wb") as f:
             pickle.dump(_result, f)
 
-        return _result
+    if verbose:
+        tmp = list(zip(_result.values(), _result.keys()))
+        _number = 5
+
+        print("Minima:", _number)
+        for name, value in sorted(tmp)[:_number]:
+            print(name, "&", value, "\\\\")
+
+        print("Maxima:", _number)
+        for name, value in sorted(tmp, reverse=True)[:_number]:
+            print(name, "&", value, "\\\\")
+
+    return _result
 
 
 def draw_movement_distribution(verbose=False):
@@ -1590,7 +1609,7 @@ def draw_ultimate_general_data(verbose=True):
 
 
 if __name__ == "__main__":
-    # employee_data = get_employee_data(show=True)
+    employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
     # general_zscore_data = get_general_zscore_data(show=True)
     # hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
@@ -1607,8 +1626,8 @@ if __name__ == "__main__":
 
     # regression_all_general_data(verbose=True, processes=100)
 
-    draw_movement(verbose=True)
-    # movement_information = calculate_movement(verbose=True)
+    #draw_movement(verbose=True, different_alpha=False)
+    movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
     # moving_distribution(verbose=True, minimum=0, maximum=25)
 
