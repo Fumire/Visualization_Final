@@ -315,7 +315,7 @@
                     \caption{Department Information by Quartiles}
                     \label{tb:movequantile}
                     \begin{tabular}{c|cc}
-                        Quantile & Department & Counts \\ \hline
+                        Quartiles & Department & Counts \\ \hline
                         \multirow{4}{*}{q1 (Minimum 25\%)} & Administration & 8 \\
                         & Executive & 7 \\
                         & Facilities & 6 \\
@@ -458,15 +458,30 @@
                     \end{tabular}
                 \end{table}
                 
-                As table \ref{tb:rmin}, no combination of columns make R-value to zero. However, as table \ref{tb:rmax}, there are many combinations of columns make R-value 1. In other words, many columns have strong positive correlation with others. However, in table \ref{tb:rmax}, most of combination are (Thermostat Heating Setpoint), (Thermostat Cooling Setpoint), or (Lights Power \& Equipment power). Also, not all Thermostat Setpoints in same floor have strong correlation; but, Thermostat Setpoints in different floor do not have strong correlation. 
+                As table \ref{tb:rmin}, no combination of columns make R-value to -1;  but, there are many combinations of columns make R-value 1. In other words, many columns have strong positive correlation with others rather than negative correlation. However, in table \ref{tb:rmax}, most of combination are (Thermostat Heating Setpoint), (Thermostat Cooling Setpoint), or (Lights Power \& Equipment power). Also, not all Thermostat Setpoints in same floor have strong correlation; but, Thermostat Setpoints in different floor do not have strong correlation. 
                 
                 According to these fact, we can know followings:
                 \begin{enumerate}
-                    \item \textit{Thermostat Setpoint} is controlled by floor.
+                    \item \textit{Thermostat Setpoint} is controlled by floor. Someone can adjust specific zone in floor, but the default value is sets on floor. 
                     \item Some zone only have lights for power consumption. 
                 \end{enumerate}
                 
             \subsubsection{Plots of General Building Data}
+                In the figure \ref{fig:general}, there are two plots: Figure \ref{fig:general}-(a) is stacked plot about all columns, and figure \ref{fig:general}-(b) has basic statistics plot of general building data.
+            
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{cc}
+                        \includegraphics[width=0.4 \linewidth]{figures/general1.png}
+                        &
+                        \includegraphics[width=0.4 \linewidth]{figures/general2.png}
+                        \\
+                        
+                        \mbox{(a) Stacked} & \mbox{(b) Statistics} \\
+                    \end{array}$
+                    \caption{Plots of General Building Data}
+                    \label{fig:general}
+                \end{figure}
             
             \subsubsection{Interesting Patterns}
         
@@ -495,8 +510,6 @@
             
             \subsubsection{Find Abnormality in General Building Data}       
                 To find patterns which appear in the building data, we should find that normality/abnormality in the building data. However, there are over 400 columns in the general building data; therefore, it is almost impossible to find abnormality column-by-column by human. Hence, we used these four algorithms which are included in scikit-learn: \textit{EllipticEnvelope} \cite{ref:normal1}, \textit{OneClassSVM}, \textit{IsolationForest} \cite{ref:normal2, ref:normal3}, and \textit{LocalOutlierFactor} \cite{ref:normal4}.
-            
-                Moreover, with the data in figure \ref{fig:abnormal}, we can display the timeline of abnormality as figure \ref{fig:abnormaltime}.
                 
                 \begin{figure}[htbp]
                     \centering
@@ -512,7 +525,7 @@
                     \label{fig:abnormaltime}
                 \end{figure}
                 
-                In the figure \ref{fig:abnormaltime}-(a), we can know that which algorithm consider specific time as abnormal events (yellow marked is abnormal); and, in the figure \ref{fig:abnormaltime}-(b), we can realize that how many algorithms consider specific time as abnormal events.
+                Moreover, we can display the timeline of abnormality as figure \ref{fig:abnormaltime}. In the figure \ref{fig:abnormaltime}-(a), we can know that which algorithm consider specific time as abnormal events (yellow marked is abnormal); and, in the figure \ref{fig:abnormaltime}-(b), we can realize that how many algorithms consider specific time as abnormal events.
             
             \subsubsection{Abnormality of Hazium Data}
             
