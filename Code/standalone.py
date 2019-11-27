@@ -1099,7 +1099,7 @@ def get_abnormal_general_data(is_drawing=False, verbose=False):
 
         fig = matplotlib.pyplot.gcf()
         fig.set_size_inches(32, 18)
-        fig.savefig(figure_directory + "Abnormality" + current_time() + ".png")
+        fig.savefig(figure_directory + "AbnormalityGeneral" + current_time() + ".png")
 
         matplotlib.pyplot.close()
 
@@ -1126,7 +1126,7 @@ def get_abnormal_general_data(is_drawing=False, verbose=False):
 
         fig = matplotlib.pyplot.gcf()
         fig.set_size_inches(32, 18)
-        fig.savefig(figure_directory + "TotalAbnormality" + current_time() + ".png")
+        fig.savefig(figure_directory + "TotalAbnormalityGeneral" + current_time() + ".png")
 
         matplotlib.pyplot.close()
 
@@ -1151,7 +1151,7 @@ def get_abnormal_general_data(is_drawing=False, verbose=False):
 
             fig = matplotlib.pyplot.gcf()
             fig.set_size_inches(24, 24)
-            fig.savefig(figure_directory + "OutlierTSNE_" + algorithm + current_time() + ".png")
+            fig.savefig(figure_directory + "OutlierTSNEGeneral_" + algorithm + current_time() + ".png")
 
             matplotlib.pyplot.close()
 
@@ -1285,6 +1285,20 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
             _department_information[department] = _employee_data.loc[_employee_data["Department"] == department].count()["Department"]
 
         print(_department_information)
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.pie(_department_information.values(), labels=_department_information.keys(), autopct="%1.1f%%")
+
+        matplotlib.pyplot.title("Department Distribution of " + str(minimum) + "%-" + str(maximum) + "%")
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "DepartmentDistribution" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
 
 
 def get_tsne_floor_data(floor=None, is_drawing=False, verbose=False):
@@ -1623,8 +1637,207 @@ def draw_ultimate_general_data(verbose=True):
     matplotlib.pyplot.close()
 
 
+def get_all_hazium_data(show=False):
+    """
+
+    """
+    _pickle_file = ".all_hazium_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            _data = pickle.load(f)
+    else:
+        _data = pandas.DataFrame()
+
+        for i, argument in enumerate(get_hazium_data().keys()):
+            tmp = get_hazium_data(data=argument)
+            _data[i] = tmp["Hazium Concentration"]
+        else:
+            _data["Date/Time"] = tmp["Date/Time"]
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
+    if show:
+        print(_data.info())
+
+    return _data
+
+
+def get_tsne_hazium_data(is_drawing=False, verbose=False):
+    """
+
+    """
+    _pickle_file = ".tsne_hazium_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            _tsne = pickle.load(f)
+    else:
+        if verbose:
+            print("Make TSNE")
+
+        data = get_all_hazium_data()
+        data["Date/Time"] = list(map(lambda x: datetime.datetime.timestamp(x), data["Date/Time"]))
+
+        _tsne = pandas.DataFrame(data=sklearn.manifold.TSNE(n_components=2, random_state=0).fit_transform(data), columns=["TSNE-1", "TSNE-2"])
+        _tsne["TSNE-1"] = scipy.stats.zscore(_tsne["TSNE-1"])
+        _tsne["TSNE-2"] = scipy.stats.zscore(_tsne["TSNE-2"])
+        _tsne["id"] = data.index
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_tsne, f)
+
+    if is_drawing:
+        if verbose:
+            print("Drawing TSNE")
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.scatter(_tsne["TSNE-1"], _tsne["TSNE-2"], alpha=0.3, s=100)
+
+        matplotlib.pyplot.title("TSNE of Hazium Data")
+        matplotlib.pyplot.xlabel("Standardized TSNE-1")
+        matplotlib.pyplot.ylabel("Standardized TSNE-2")
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "TSNEHaziumData" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        if verbose:
+            print("Drawing Done!!")
+
+    return _tsne
+
+
+def get_abnormal_hazium_data(is_drawing=False, verbose=False):
+    """
+
+    """
+    _pickle_file = ".abnormal_hazium_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            _tsne = pickle.load(f)
+    else:
+        if verbose:
+            print("Calculating...")
+
+        data = get_all_hazium_data()
+        data["Date/Time"] = list(map(lambda x: datetime.datetime.timestamp(x), data["Date/Time"]))
+
+        _tsne = get_tsne_hazium_data()
+
+        elliptic = sklearn.covariance.EllipticEnvelope(random_state=0)
+        _tsne["elliptic"] = list(map(lambda x: True if x == -1 else False, elliptic.fit_predict(data)))
+
+        oneclasssvm = sklearn.svm.OneClassSVM(gamma="scale")
+        _tsne["oneclasssvm"] = list(map(lambda x: True if x == -1 else False, oneclasssvm.fit_predict(data)))
+
+        isolationforest = sklearn.ensemble.IsolationForest(random_state=0, n_jobs=100)
+        _tsne["isolationforest"] = list(map(lambda x: True if x == -1 else False, isolationforest.fit_predict(data)))
+
+        localoutlier = sklearn.neighbors.LocalOutlierFactor(n_jobs=100)
+        _tsne["localoutlier"] = list(map(lambda x: True if x == -1 else False, localoutlier.fit_predict(data)))
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_tsne, f)
+
+    if verbose:
+        print(_tsne)
+
+    if is_drawing:
+        if verbose:
+            print("Abnormality by Algorithms")
+
+        drawing_data = list()
+        for column in list(_tsne.columns)[3:]:
+            drawing_data.append(list(map(lambda x: 1 if x else 0, list(_tsne[column]))))
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.pcolor(drawing_data)
+
+        matplotlib.pyplot.title("Abnormality by Algorithms")
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Algorithms")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.yticks(list(map(lambda x: x + 0.5, range(len(list(_tsne.columns)[3:])))), list(_tsne.columns)[3:])
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "AbnormalityHazium" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        if verbose:
+            print("Total Abnormality")
+
+        data = drawing_data[:]
+        drawing_data = [0 for _ in data[0]]
+        for elements in data:
+            for i, element in enumerate(elements):
+                drawing_data[i] += element
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.bar(range(len(drawing_data)), drawing_data)
+
+        matplotlib.pyplot.title("Total Abnormality")
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Abnormality Score")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.yticks([])
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "TotalAbnormalityHazium" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        for algorithm in list(_tsne.columns)[3:]:
+            if verbose:
+                print(">> Drawing:", algorithm)
+
+            x_data, o_data = _tsne.loc[(_tsne[algorithm])], _tsne.loc[~(_tsne[algorithm])]
+
+            matplotlib.use("Agg")
+            matplotlib.rcParams.update({"font.size": 30})
+
+            matplotlib.pyplot.figure()
+            matplotlib.pyplot.scatter(o_data["TSNE-1"], o_data["TSNE-2"], alpha=0.3, s=200, marker="o", label="Inlier")
+            matplotlib.pyplot.scatter(x_data["TSNE-1"], x_data["TSNE-2"], alpha=1, s=100, marker="X", label="Outlier")
+
+            matplotlib.pyplot.title("Abnormality: " + algorithm)
+            matplotlib.pyplot.xlabel("Standardized TSNE-1")
+            matplotlib.pyplot.ylabel("Standardized TSNE-2")
+            matplotlib.pyplot.grid(True)
+            matplotlib.pyplot.legend()
+
+            fig = matplotlib.pyplot.gcf()
+            fig.set_size_inches(24, 24)
+            fig.savefig(figure_directory + "OutlierTSNEHazium_" + algorithm + current_time() + ".png")
+
+            matplotlib.pyplot.close()
+
+    return _tsne
+
+
 if __name__ == "__main__":
-    employee_data = get_employee_data(show=True)
+    # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
     # general_zscore_data = get_general_zscore_data(show=True)
     # hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
@@ -1644,7 +1857,7 @@ if __name__ == "__main__":
     #draw_movement(verbose=True, different_alpha=False)
     # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
+    # [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
 
     # draw_hazium_data(verbose=True)
     # floor_data = get_floor_data(floor=2, verbose=True)
@@ -1656,3 +1869,5 @@ if __name__ == "__main__":
     # draw_average_general_data(verbose=True)
     # draw_median_general_data(verbose=True)
     # draw_ultimate_general_data(verbose=True)
+
+    get_abnormal_hazium_data(is_drawing=True, verbose=True)
