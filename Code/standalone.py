@@ -235,7 +235,7 @@ def get_hazium_data(data=None, show=False):
     """
     Get hazium information data.
 
-    Get hazium data of building. Save this data with pickle format. Last modified: 2019-11-18T02:10:45+0900
+    Get hazium data of building with standardized. Save this data with pickle format. Last modified: 2019-11-27T09:52:45+0900
 
     Args:
         data (None or Int): select which data to fetch. If this value is default(None), the function will return list of possibilities, rather than data
@@ -266,6 +266,8 @@ def get_hazium_data(data=None, show=False):
         _data["Date/Time"] = pandas.to_datetime(_data["Date/Time"])
 
         _data.columns = ["Date/Time", "Hazium Concentration"]
+
+        _data["Hazium Concentration"] = scipy.stats.zscore(_data["Hazium Concentration"])
 
         with open(_pickle_file, "wb") as f:
             pickle.dump(_data, f)
@@ -852,8 +854,8 @@ def draw_movement(verbose=False, different_alpha=True):
                     continue
                 matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=5 / len(x_data) if different_alpha else 0.5, length_includes_head=True, head_width=3, head_length=3, color="k")
 
-            if x_data:
-                matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="X", c="r")
+            if x_data and y_data:
+                matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="o", c="r")
                 matplotlib.pyplot.scatter(x_data[-1], y_data[-1], s=1000, marker="X", c="b")
 
             matplotlib.pyplot.title("Movement of " + name + " in " + str(floor) + " floor")
@@ -865,7 +867,7 @@ def draw_movement(verbose=False, different_alpha=True):
 
             fig = matplotlib.pyplot.gcf()
             fig.set_size_inches(32, 18)
-            fig.savefig(figure_directory + "Movement_" + str(num) + "_" + str(floor) + current_time() + ".png")
+            fig.savefig(figure_directory + "Movement_" + name + "_" + str(floor) + current_time() + ".png")
 
             matplotlib.pyplot.close()
 
@@ -1448,7 +1450,7 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
 
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(32, 18)
-    fig.savefig(figure_directory + "RvalueDistribution" + current_time() + ".png")
+    fig.savefig(figure_directory + "RvalueDistributionGeneral" + current_time() + ".png")
 
     matplotlib.pyplot.close()
 
@@ -1639,7 +1641,15 @@ def draw_ultimate_general_data(verbose=True):
 
 def get_all_hazium_data(show=False):
     """
+    Get all hazium data.
 
+    Get all hazium data from all files. Save this with pickle format. Last modified: 2019-11-27T09:41:59+0900
+
+    Args:
+        show (bool): when this is true, show the data information before returning
+
+    Returns:
+        DataFrame: which contains all of the hazium data
     """
     _pickle_file = ".all_hazium_data.pkl"
 
@@ -1666,7 +1676,16 @@ def get_all_hazium_data(show=False):
 
 def get_tsne_hazium_data(is_drawing=False, verbose=False):
     """
+    Get TSNE hazium data.
 
+    Get TSNE with hazium data. Save this with pickle format. Last modified: 2019-11-27T09:42:47+0900
+
+    Args:
+        is_drawing (bool): If it is true, this function will draw the tsne plot
+        verbose (bool): Verbosity level
+
+    Returns:
+        DataFrame: which contains TSNE data of hazium data
     """
     _pickle_file = ".tsne_hazium_data.pkl"
 
@@ -1719,7 +1738,16 @@ def get_tsne_hazium_data(is_drawing=False, verbose=False):
 
 def get_abnormal_hazium_data(is_drawing=False, verbose=False):
     """
+    Get abnormality of hazium data.
 
+    Get abnormality of all hazium data. Save this with pickle format. Last modified: 2019-11-27T09:45:07+0900
+
+    Args:
+        is_drawing (bool): If it is true, this function will draw the many plot according to abnormality
+        verbose (bool): Verbosity level
+
+    Returns:
+        DataFrame: which contains abnormality with TSNE data
     """
     _pickle_file = ".abnormal_hazium_data.pkl"
 
@@ -1836,6 +1864,207 @@ def get_abnormal_hazium_data(is_drawing=False, verbose=False):
     return _tsne
 
 
+def draw_correlation_with_hazium_data(verbose=False, processes=100):
+    """
+
+    """
+    _hazium_data = get_all_hazium_data()
+    _hazium_data.drop(columns=["Date/Time"], inplace=True)
+
+    _pickle_file = ".correlation_hazium.pkl"
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            _values = pickle.load(f)
+    else:
+        if verbose:
+            print("Calculating...")
+
+        _general_data = get_general_zscore_data()
+
+        _columns = sorted(list(_general_data.columns))
+        _values = list()
+
+        with multiprocessing.Pool(processes=processes) as pool:
+            for x in sorted(list(_hazium_data.columns)):
+                if verbose:
+                    print(">> Calculating:", x)
+                _values.append(pool.starmap(r_value, [(_hazium_data[x], _general_data[y]) for y in _columns]))
+
+        _values = pandas.DataFrame(data=_values, columns=_columns)
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_values, f)
+
+    if verbose:
+        print("Heatmap")
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.pcolor(_values)
+
+    matplotlib.pyplot.title("Correlation between General Data & Hazium Data")
+    matplotlib.pyplot.xlabel("General Data")
+    matplotlib.pyplot.ylabel("Hazium Data")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.yticks(list(map(lambda x: x + 0.5, range(len(_hazium_data.columns)))), _hazium_data.columns)
+    matplotlib.pyplot.colorbar()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(30, 24)
+    fig.savefig(figure_directory + "CorrelationHazium" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+    if verbose:
+        print("Bar graph")
+
+    flat = _values.values.flatten()
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.bar(range(len(flat)), sorted(flat, reverse=True))
+
+    matplotlib.pyplot.title("R-value Distribution")
+    matplotlib.pyplot.xlabel("Index")
+    matplotlib.pyplot.ylabel("R-value")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "RvalueDistributionHazium" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+    if verbose:
+        statistics(flat)
+
+
+def compare_abnormality(verbose=True):
+    """
+    Compare abnormality.
+
+    Compare abnormality between general building data and hazium data. Draw the comparing for analysis. Last modified: 2019-11-29T12:08:57+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
+    """
+    abnormal_general_data = get_abnormal_general_data()
+    abnormal_hazium_data = get_abnormal_hazium_data()
+
+    algorithms = list(abnormal_general_data.columns)[3:]
+
+    _values = list()
+
+    if verbose:
+        print("Calculating")
+
+    for algorithm in algorithms:
+        if verbose:
+            print(">>", algorithm)
+        general = list(map(lambda x: 1 if x else 0, abnormal_general_data[algorithm]))
+        hazium = list(map(lambda x: 1 if x else 0, abnormal_hazium_data[algorithm]))
+
+        _values.append(list(map(lambda x: x[0] + x[1], zip(general, hazium))))
+
+    if verbose:
+        print("Drawing Heatmap")
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.pcolor(_values)
+
+    matplotlib.pyplot.title("Abnormality between General Data and Hazium Data")
+    matplotlib.pyplot.xlabel("Time")
+    matplotlib.pyplot.ylabel("Algorithms")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.yticks(list(map(lambda x: x + 0.5, range(len(algorithms)))), algorithms)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "AbnormalBothHeatmap" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
+def draw_movement_department(verbose=False):
+    """
+    Draw movement data by department.
+
+    Draw movement data by department. Last modified: 2019-11-29T12:07:57+0900
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        None
+    """
+    _employee_data = get_employee_data()
+    _movement_data = calculate_movement()
+    _prox_data = get_both_prox_data()
+
+    _employee_data["movement"] = list(map(lambda x: _movement_data[x] if x in _movement_data else 0, _employee_data["prox-id"]))
+
+    departments = sorted(list(set(_employee_data["Department"])))
+
+    for department in departments:
+        if verbose:
+            print(">>", department)
+
+        names = sorted(list(set(_employee_data.loc[(_employee_data["Department"] == department)]["prox-id"])))
+        floors = sorted(list(set(_prox_data["floor"])))
+
+        for floor in floors:
+            if verbose:
+                print(">>>>", floor)
+
+            matplotlib.use("Agg")
+            matplotlib.rcParams.update({"font.size": 30})
+
+            matplotlib.pyplot.figure()
+            for name in names:
+                drawing_data = _prox_data.loc[(_prox_data["floor"] == floor) & (_prox_data["prox-id"].str.contains(name))]
+                x_data = list(drawing_data["x"])
+                y_data = list(drawing_data["y"])
+
+                img = PIL.Image.open(data_directory + "Building Layout/Prox Zones/F" + str(floor) + ".jpg")
+                img = img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+                img.thumbnail((_x_limit, _y_limit))
+                matplotlib.pyplot.imshow(img)
+
+                for i in range(1, len(x_data)):
+                    if (x_data[i - 1] == x_data[i]) and (y_data[i - 1] == y_data[i]):
+                        continue
+                    matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=1 / len(x_data), length_includes_head=True, head_width=3, head_length=3, color="k")
+
+                if x_data and y_data:
+                    matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="o", c="r")
+                    matplotlib.pyplot.scatter(x_data[-1], y_data[-1], s=1000, marker="X", c="b")
+
+            matplotlib.pyplot.title("Movment of " + str(department) + " Department on " + str(floor) + " floor")
+            matplotlib.pyplot.xlabel("X")
+            matplotlib.pyplot.ylabel("Y")
+            matplotlib.pyplot.xlim(0, _x_limit)
+            matplotlib.pyplot.ylim(0, _y_limit)
+
+            fig = matplotlib.pyplot.gcf()
+            fig.set_size_inches(32, 18)
+            fig.savefig(figure_directory + "MovementDepartment_" + str(department) + "_" + str(floor) + current_time() + ".png")
+
+            matplotlib.pyplot.close()
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -1870,4 +2099,7 @@ if __name__ == "__main__":
     # draw_median_general_data(verbose=True)
     # draw_ultimate_general_data(verbose=True)
 
-    get_abnormal_hazium_data(is_drawing=True, verbose=True)
+    # abnormal_hazium_data = get_abnormal_hazium_data(is_drawing=True, verbose=True)
+    # draw_correlation_with_hazium_data(verbose=True, processes=100)
+    # compare_abnormality(verbose=True)
+    draw_movement_department(verbose=True)
