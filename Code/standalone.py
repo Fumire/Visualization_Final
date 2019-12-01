@@ -2291,14 +2291,14 @@ def draw_second_quarter_general_data_actual(column, is_drawing=False):
 
         matplotlib.pyplot.close()
 
-    return peak_dict["widths"]
+    return list(peak_dict["widths"])
 
 
 def draw_second_quarter_general_data(verbose=False, processes=100):
     """
     Draw general building data in second quarter. (Headquater)
 
-    Draw general building data in second quarter.
+    Draw general building data in second quarter. Last modified: 2019-12-02T04:58:28+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -2347,6 +2347,149 @@ def draw_second_quarter_general_data(verbose=False, processes=100):
     matplotlib.pyplot.close()
 
 
+def draw_third_quarter_general_data(verbose=False, cycle=288):
+    """
+    Draw general data in third quarter.
+
+    Draw thir quarter of general building data.
+
+    Args:
+        verbose (bool): Verbosity level
+        cycle (int): Cycle of polar plot
+
+    Returns:
+        None
+    """
+    _general_data = get_general_zscore_data()
+    _general_data = _general_data.head(n=_general_data.shape[0] * 3 // 4).tail(n=_general_data.shape[0] // 4)
+
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+    _general_data["mean"] = _general_data.mean(axis=1)
+    _general_data["median"] = _general_data.median(axis=1)
+    _general_data["q1"] = _general_data.quantile(q=0.25, axis="columns")
+    _general_data["q3"] = _general_data.quantile(q=0.75, axis="columns")
+
+    for column in ["mean", "median", "q1", "q3"]:
+        if verbose:
+            print(">>", column)
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        fig = matplotlib.pyplot.figure()
+        ax = fig.add_subplot(111, projection="polar")
+        for i in range(_general_data.shape[0] // cycle):
+            ax.plot(2 * numpy.pi * numpy.arange(0, 1, 1 / cycle), _general_data[column][cycle * i:cycle * (i + 1)])
+
+        matplotlib.pyplot.title(column + " / Period: " + str(cycle))
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "ThirdQuarter_" + column + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    if verbose:
+        print("Done!!")
+
+
+def draw_fourth_quarter_general_data_actual(column, is_drawing=False):
+    """
+    Draw general building data in fourth quarter. (Actual)
+
+    Calculate and draw the under-peak of general building data in given column. Last modified: 2019-12-02T04:57:32+0900
+
+    Args:
+        column (string): Mandatory. The column to be calculated the under-peak.
+        is_drawing (bool): If this is true, draw the under-peak plot of analysis
+
+    Returns:
+        list: which contains the width of every peak.
+    """
+    _general_data = get_general_zscore_data()
+    _general_data = _general_data.tail(n=_general_data.shape[0] // 4)
+
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+    _general_data["mean"] = _general_data.mean(axis=1)
+    _general_data["median"] = _general_data.median(axis=1)
+    _general_data["q1"] = _general_data.quantile(q=0.25, axis="columns")
+    _general_data["q3"] = _general_data.quantile(q=0.75, axis="columns")
+
+    peak_points, peak_dict = scipy.signal.find_peaks(-_general_data[column], width=1)
+
+    if is_drawing:
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.plot(range(len(_general_data[column])), _general_data[column])
+        matplotlib.pyplot.scatter(peak_points, _general_data[column].iloc[peak_points], marker="X", s=100, c="r")
+
+        matplotlib.pyplot.title(column)
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Value (Standardized)")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "FourthQuarters_" + column + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    return list(peak_dict["widths"])
+
+
+def draw_fourth_quarter_general_data(verbose=False, processes=100):
+    """
+    Draw general building data in fourth quarter. (Headquater)
+
+    Draw general building data in fourth quarter. Last modified: 2019-12-02T04:58:53+0900
+
+    Args:
+        verbose (bool): Verbosity level
+        processes (int): Number of processes
+
+    Returns:
+        None
+    """
+    _general_data = get_general_zscore_data()
+    _general_data = _general_data.tail(n=_general_data.shape[0] // 4)
+
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+
+    if verbose:
+        print(_general_data)
+
+    _widths = list()
+    with multiprocessing.Pool(processes=processes) as pool:
+        for l in pool.map(draw_fourth_quarter_general_data_actual, _general_data.columns):
+            _widths += l
+
+    for column in ["mean", "median", "q1", "q3"]:
+        draw_fourth_quarter_general_data_actual(column, is_drawing=True)
+
+    if verbose:
+        statistics(_widths)
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.bar(range(len(_widths)), sorted(_widths, reverse=True))
+
+    matplotlib.pyplot.title("Peak Width Distribution")
+    matplotlib.pyplot.xlabel("Counts")
+    matplotlib.pyplot.ylabel("Peak Width")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "FourthQuaters_Width" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -2387,4 +2530,6 @@ if __name__ == "__main__":
     # draw_movement_department(verbose=True)
 
     # draw_first_quarter_general_data(verbose=True, cycle=288)
-    draw_second_quarter_general_data(verbose=True)
+    # draw_second_quarter_general_data(verbose=True, processes=100)
+    # draw_third_quarter_general_data(verbose=True, cycle=288)
+    draw_fourth_quarter_general_data(verbose=True, processes=100)
