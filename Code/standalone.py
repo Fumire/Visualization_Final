@@ -31,6 +31,7 @@ figure_directory = "figures/"
 
 _x_limit, _y_limit = 189, 111
 
+
 def current_time():
     """
     Get current time.
@@ -1036,7 +1037,7 @@ def get_abnormal_general_data(is_drawing=False, verbose=False):
     """
     Find abnormality in general data.
 
-    Find and calculate abnormality in general data. Save this with pickle format. Last modified: 2019-11-22T05:50:23+0900
+    Find and calculate abnormality in general data. Save this with pickle format. Last modified: 2019-12-01T00:13:35+0900
 
     Args:
         is_drawing (bool): If it is true, this function will draw the tsne plot with abnormality
@@ -1058,7 +1059,6 @@ def get_abnormal_general_data(is_drawing=False, verbose=False):
 
         data = get_general_data()
         data["Date/Time"] = list(map(lambda x: datetime.datetime.timestamp(x), data["Date/Time"]))
-
         _tsne = get_tsne_general_data()
 
         elliptic = sklearn.covariance.EllipticEnvelope(random_state=0)
@@ -1215,7 +1215,7 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
     """
     Moving distribution upon selected percentile.
 
-    Draw movement of selected percentile id. Last modified: 2019-11-25T02:38:22+0900
+    Draw movement of selected percentile id. Last modified: 2019-12-01T21:35:13+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -1230,13 +1230,14 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
     _distance_data = calculate_movement()
     minimum_value, maximum_value = numpy.nanpercentile(list(_distance_data.values()), minimum), numpy.nanpercentile(list(_distance_data.values()), maximum)
     _names = list(filter(lambda x: (_distance_data[x] >= minimum_value) and (_distance_data[x] <= maximum_value), list(_distance_data.keys())))
+    floors = sorted(list(set(_moving_data["floor"])))
 
     if verbose:
-        print("Selected IDs:", len(_names))
+        print("Selected IDs:", len(_names), _names)
         print("Min:", minimum_value)
         print("Max:", maximum_value)
 
-    for floor in sorted(list(set(_moving_data["floor"]))):
+    for floor in floors:
         if verbose:
             print(">> Drawing:", floor, "floor")
 
@@ -1278,6 +1279,44 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
     if verbose:
         print("Drawing Done!!")
 
+    for floor in floors:
+        if verbose:
+            print("Drawing:", floor)
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+
+        img = PIL.Image.open(data_directory + "Building Layout/Prox Zones/F" + str(floor) + ".jpg")
+        img = img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+        img.thumbnail((_x_limit, _y_limit))
+        matplotlib.pyplot.imshow(img)
+
+        for name in _names:
+            drawing_data = _moving_data[(_moving_data["prox-id"].str.contains(name)) & (_moving_data["floor"] == floor)]
+            x_data = list(drawing_data["x"])
+            y_data = list(drawing_data["y"])
+
+            for i in range(1, len(x_data)):
+                matplotlib.pyplot.arrow(x_data[i - 1], y_data[i - 1], x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1], alpha=1 / len(x_data), length_includes_head=True, head_width=3, head_length=3, color="k")
+
+            if x_data and y_data:
+                matplotlib.pyplot.scatter(x_data[0], y_data[0], s=1000, marker="o", c="r")
+                matplotlib.pyplot.scatter(x_data[-1], y_data[-1], s=1000, marker="X", c="b")
+
+        matplotlib.pyplot.title("Movement from " + str(minimum) + "% to " + str(maximum) + "%")
+        matplotlib.pyplot.xlabel("X")
+        matplotlib.pyplot.ylabel("Y")
+        matplotlib.pyplot.xlim(0, _x_limit)
+        matplotlib.pyplot.ylim(0, _y_limit)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "PercentileMovement_" + str(minimum) + "_" + str(maximum) + "_" + str(floor) + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
     if verbose:
         _employee_data = get_employee_data()
         _employee_data = _employee_data.loc[(_employee_data["prox-id"].isin(_names))]
@@ -1305,7 +1344,17 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
 
 def get_tsne_floor_data(floor=None, is_drawing=False, verbose=False):
     """
+    Get TSNE data by floor.
 
+    Get TSNE data by each floor. Last modified: 2019-12-01T00:17:01+0900
+
+    Args:
+        floor (int): specify the floor to draw.
+        is_drawing (bool): If this is true, draw the TSNE data.
+        verbose (bool): Verbosity level
+
+    Returns:
+        DataFrame: which contains TSNE data of specified floor.
     """
     _file_name = {0: "general", 1: "floor1", 2: "floor2", 3: "floor3"}
     if floor not in _file_name:
@@ -1353,6 +1402,7 @@ def get_tsne_floor_data(floor=None, is_drawing=False, verbose=False):
 
     return _tsne
 
+
 def r_value(x, y):
     """
     Return r_value.
@@ -1367,6 +1417,7 @@ def r_value(x, y):
         float: which is calculated R value
     """
     return scipy.stats.linregress(x, y)[2]
+
 
 def draw_correlation_with_general_data(verbose=False, processes=100):
     """
@@ -1478,6 +1529,17 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
                 break
             print(x, "&", y, "&", v, "\\\\")
 
+    with open("csv/CorrelationGeneral.csv", "w") as f:
+        columns = sorted(list(_values.keys()))
+        f.write("Index,")
+        f.write(",".join(columns))
+        f.write("\n")
+        for column in columns:
+            f.write(column)
+            f.write(",")
+            f.write(",".join([str(_values[column][another]) for another in columns]))
+            f.write("\n")
+
     return _values
 
 
@@ -1523,7 +1585,6 @@ def draw_stacked_general_data(verbose=False):
     fig.savefig(figure_directory + "StackedGeneral" + current_time() + ".png")
 
     matplotlib.pyplot.close()
-
 
     if verbose:
         print("Drawing Done!!")
@@ -2083,10 +2144,10 @@ if __name__ == "__main__":
 
     # regression_all_general_data(verbose=True, processes=100)
 
-    #draw_movement(verbose=True, different_alpha=False)
+    # draw_movement(verbose=True, different_alpha=True)
     # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    # [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
+    [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
 
     # draw_hazium_data(verbose=True)
     # floor_data = get_floor_data(floor=2, verbose=True)
@@ -2102,4 +2163,4 @@ if __name__ == "__main__":
     # abnormal_hazium_data = get_abnormal_hazium_data(is_drawing=True, verbose=True)
     # draw_correlation_with_hazium_data(verbose=True, processes=100)
     # compare_abnormality(verbose=True)
-    draw_movement_department(verbose=True)
+    # draw_movement_department(verbose=True)
