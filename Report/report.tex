@@ -684,7 +684,7 @@
                 \end{figure}
             
             \subsubsection{Score of Classification of Abnormality}
-                To decide the best algorithm for find abnormality, we use these five classifier algorithms for scoring: \textit{KNeighbor}, \textit{SVC} \cite{ref:svc1, ref:svc2}, \textit{DecisionTree} \cite{ref:decisiontree1, ref:decisiontree2, ref:decisiontree3}, \textit{RandomForest} \cite{ref:decisiontree3}, \textit{AdaBoost} \cite{ref:ada1, ref:ada2}. The scores are in table \ref{tb:abnormal}; the highest score is 0.998 on \textit{OneClassSVM} algorithm. Therefore, we choose \textit{OneClassSVM} algorithm for finding abnormality.
+                To decide the best algorithm for find abnormality, we use these five classifier algorithms for scoring: \textit{KNeighbor}, \textit{SVC} \cite{ref:svc1, ref:svc2}, \textit{DecisionTree} \cite{ref:decisiontree1, ref:decisiontree2, ref:decisiontree3}, \textit{RandomForest} \cite{ref:decisiontree3}, \textit{AdaBoost} \cite{ref:ada1, ref:ada2}. The scores are in table \ref{tb:abnormal}; the highest score is \textit{0.9960} on \textit{IsolationForest} algorithm. Therefore, we choose \textit{IsolationForest} algorithm for finding abnormality. Note that the train data and the test data are randomly selected with \( 0.8 : 0.2\) ratio, and the seed is specified for repeated result. 
                 
                 \begin{table}[htbp]
                     \centering
@@ -692,12 +692,12 @@
                     \label{tb:abnormal}
                     \begin{tabular}{c|cccc}
                         & Elliptic & OneClassSVM & IsolationForest & LocalOutlier \\ \hline
-                        KNeighbor & 0.994 & 0.993 & 0.995 & 0.985 \\
-                        SVC & 0.990 & 0.999 & 0.993 & 0.986 \\
-                        DecisionTree & 0.999 & 1.000 & 0.999 & 0.983 \\
-                        RandomForest & 0.998 & 0.999 & 0.998 & 0.986 \\
-                        AdaBoost & 0.999 & 1.000 & 0.999 & 0.979 \\ \hline
-                        Mean & 0.996 & 0.998 & 0.997 & 0.984 \\
+                        KNeighbor & 0.994 & 0.989 & 0.995 & 0.985 \\
+                        SVC & 0.990 & 0.986 & 0.993 & 0.986 \\
+                        DecisionTree & 0.999 & 0.999 & 0.999 & 0.981 \\
+                        RandomForest & 0.998 & 0.999 & 0.996 & 0.986 \\
+                        AdaBoost & 0.999 & 1.000 & 0.998 & 0.979 \\ \hline
+                        Mean & 0.9958 & 0.9945 & 0.9960 & 0.9836 \\
                     \end{tabular}
                 \end{table}
             
