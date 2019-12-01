@@ -2507,6 +2507,8 @@ def calculate_abnormality_score(verbose=False):
         abnormal_hazium_data = get_abnormal_hazium_data()
         general_data = get_general_zscore_data()
 
+        general_data.drop(columns=["Date/Time"], inplace=True)
+
         algorithms = list(abnormal_general_data.columns)[3:]
         score = dict()
 
@@ -2540,7 +2542,27 @@ def calculate_abnormality_score(verbose=False):
         print("&", " & ".join(score.keys()), "\\\\")
         for algo in score[list(score.keys())[0]].keys():
             print(algo, "&", " & ".join(["%.3f" % score[key][algo] for key in score.keys()]), "\\\\")
-        print("Mean &", " & ".join(["%.3f" % numpy.mean(list(score[key].values())) for key in score.keys()]), "\\\\")
+        print("Mean &", " & ".join(["%.4f" % numpy.mean(list(score[key].values())) for key in score.keys()]), "\\\\")
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    for i, algorithm in enumerate(score):
+        matplotlib.pyplot.bar(numpy.arange(len(score[algorithm])) + (i - len(score) // 2) * 0.2, list(score[algorithm].values()), width=0.2, label=algorithm)
+
+    matplotlib.pyplot.title("Scores of Abnormality")
+    matplotlib.pyplot.xlabel("Abnormality Algoritms")
+    matplotlib.pyplot.ylabel("Score")
+    matplotlib.pyplot.xticks(numpy.arange(len(score[algorithm])), score[algorithm].keys())
+    matplotlib.pyplot.grid(True)
+    matplotlib.pyplot.legend()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "Scoring" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
 
     return score
 
