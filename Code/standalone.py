@@ -1281,7 +1281,7 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
 
     for floor in floors:
         if verbose:
-            print("Drawing:", floor)
+            print("Drawing:", floor, "floor")
 
         matplotlib.use("Agg")
         matplotlib.rcParams.update({"font.size": 30})
@@ -1316,6 +1316,9 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
         fig.savefig(figure_directory + "PercentileMovement_" + str(minimum) + "_" + str(maximum) + "_" + str(floor) + current_time() + ".png")
 
         matplotlib.pyplot.close()
+
+    if verbose:
+        print("Drawing Done!!")
 
     if verbose:
         _employee_data = get_employee_data()
@@ -1423,7 +1426,7 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     """
     Draw correlation with general data.
 
-    Draw correlation with each general data. Draw heatmap about R values between all columns. Last modified: 2019-11-25T22:06:34+0900
+    Draw correlation with each general data. Draw heatmap about R values between all columns. Last modified: 2019-12-01T22:04:48+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -1508,11 +1511,12 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     if verbose:
         statistics(flat)
 
-    if verbose:
-        _columns = sorted(list(_values.columns))
-        _extrema = list()
-        _number = 5
+    _columns = sorted(list(_values.columns))
+    _extrema = list()
+    _number = 5
+    _general_data = get_general_zscore_data()
 
+    if verbose:
         for x in _columns:
             for y in _columns:
                 if x == y:
@@ -1528,6 +1532,70 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
             if v != 1:
                 break
             print(x, "&", y, "&", v, "\\\\")
+
+    if verbose:
+        print("Draw negative correlation")
+
+    for rank in range(_number):
+        if verbose:
+            print("Rank:", rank)
+
+        v, x, y = sorted(_extrema)[rank]
+        data = [_general_data[x], _general_data[y]]
+        slope, intercept, rvalue, pvalue, stderr = scipy.stats.linregress(data)
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.scatter(data[0], data[1], s=100, alpha=0.3, marker="o", c="b")
+        matplotlib.pyplot.plot(numpy.arange(sorted(data[0])[0], sorted(data[0])[-1], 0.01), slope * numpy.arange(sorted(data[0])[0], sorted(data[0])[-1], 0.01) + intercept, alpha=1, c="k")
+
+        matplotlib.pyplot.title("Correlation: " + "%.2f" % rvalue)
+        matplotlib.pyplot.xlabel(x)
+        matplotlib.pyplot.ylabel(y)
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "NegativeCorrelation_" + x + "_" + y + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    if verbose:
+        print("Drawing Done!!")
+
+    if verbose:
+        print("Draw positive correlation")
+
+    for rank in range(_number):
+        if verbose:
+            print("Rank:", rank)
+
+        v, x, y = sorted(_extrema)[-rank - 1]
+        data = [_general_data[x], _general_data[y]]
+        slope, intercept, rvalue, pvalue, stderr = scipy.stats.linregress(data)
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.scatter(data[0], data[1], s=100, alpha=0.3, marker="o", c="b")
+        matplotlib.pyplot.plot(numpy.arange(sorted(data[0])[0], sorted(data[0])[-1], 0.01), slope * numpy.arange(sorted(data[0])[0], sorted(data[0])[-1], 0.01) + intercept, alpha=1, c="k")
+
+        matplotlib.pyplot.title("Correlation: " + "%.2f" % rvalue)
+        matplotlib.pyplot.xlabel(x)
+        matplotlib.pyplot.ylabel(y)
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "PositiveCorrelation_" + x + "_" + y + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    if verbose:
+        print("Drawing Done!!")
 
     with open("csv/CorrelationGeneral.csv", "w") as f:
         columns = sorted(list(_values.keys()))
@@ -2126,6 +2194,14 @@ def draw_movement_department(verbose=False):
             matplotlib.pyplot.close()
 
 
+def draw_split_general_data(verbose=False, split=4):
+    """
+
+    """
+    _general_data = get_general_zscore_data()
+    _node = [_general_data.shape[0] * s // split for s in range(split + 1)]
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -2147,7 +2223,7 @@ if __name__ == "__main__":
     # draw_movement(verbose=True, different_alpha=True)
     # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
+    # [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
 
     # draw_hazium_data(verbose=True)
     # floor_data = get_floor_data(floor=2, verbose=True)
@@ -2164,3 +2240,4 @@ if __name__ == "__main__":
     # draw_correlation_with_hazium_data(verbose=True, processes=100)
     # compare_abnormality(verbose=True)
     # draw_movement_department(verbose=True)
+    draw_split_general_data(verbose=True, split=4)
