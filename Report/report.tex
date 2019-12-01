@@ -526,7 +526,31 @@
                     \label{fig:firstq}
                 \end{figure}
             
+                In the second-quarter, we calculated the peak in every columns in general building data. With figure \ref{fig:secondq}-(a), the distribution of peak width is shown; and, with figure \ref{fig:secondq}-(b), you can know that where is peak in general building data. Also, table \ref{tb:secondq} displays basic statistics value of peak width. with the data in figure \ref{fig:secondq} and table \ref{tb:secondq}, we can know that the general building data are suddenly increasing about \textit{15 indices}; in other word,s the general building data has steeps every \textit{75 minutes}. 
                 
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Basic Statistics Data with the peak in the Second-quarter}
+                    \label{tb:secondq}
+                    \begin{tabular}{c||c|c|c|c|c|c|c}
+                        Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Value & 1.0 & 808.45 & 15.98 & 1.51 & 3.71 & 12.0 & 55.36 \\
+                    \end{tabular}
+                \end{table}
+            
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{cc}
+                        \includegraphics[width=0.4 \linewidth]{figures/second1.png}
+                        &
+                        \includegraphics[width=0.4 \linewidth]{figures/second2.png}
+                        \\
+                        
+                        \mbox{(a) Peak Width Distribution} & \mbox{(b) Peak in Mean Column}
+                    \end{array}$
+                    \caption{Peak in the Second-quarter}
+                    \label{fig:secondq}
+                \end{figure}
             
             \subsubsection{Interesting Patterns}                                
                 According to these fact, we can know followings:
@@ -535,6 +559,7 @@
                     \item Some zone only have \textit{lights} for power consumption. (Table \ref{tb:rmax})
                     \item No \textit{strong} negative correlation exist. (Figure \ref{fig:lowest})
                     \item In the first-quarters, the general building data make a cycle everyday. (Figure \ref{fig:firstq})
+                    \item In the second-quarters, the general building data are suddenly increasing about every 75 minutes. (Table \ref{tb:secondq} and Figure \ref{fig:secondq})
                 \end{enumerate}
         
         \subsection[Question 3]{Describe up to five notable anomalies or unusual events you see in the data. Prioritize those issue that are most likely to represent a danger or a serious issue for building operations.}
