@@ -1806,6 +1806,39 @@ def get_all_hazium_data(show=False):
     return _data
 
 
+def get_all_hazium_zscore_data(show=False):
+    """
+    Get all zscore Hazium data
+
+    get all standardized hazium data from all file. Save this with pickle format. Last modified: 2019-12-02T07:05:53+0900
+
+    Args:
+        show (bool): when this is true, show the data information before returning
+
+    Returns:
+        DataFrame: which contains standardized hazium data
+    """
+    _pickle_file = ".all_hazium_zscore_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            _data = pickle.load(f)
+    else:
+        _data = get_all_hazium_data()
+        _data.drop(columns=["Date/Time"], inplace=True)
+
+        for column in _data.columns:
+            _data[column] = scipy.stats.zscore(_data[column])
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(_data, f)
+
+    if show:
+        print(_data.info())
+
+    return _data
+
+
 def get_tsne_hazium_data(is_drawing=False, verbose=False):
     """
     Get TSNE hazium data.
@@ -2494,6 +2527,15 @@ def draw_fourth_quarter_general_data(verbose=False, processes=100):
 
 def calculate_abnormality_score(verbose=False):
     """
+    Calculate abnormality score.
+
+    Calcuate abnormality score for choosing the best algorithm for finding abnormality
+
+    Args:
+        verbose (bool): Verbosity level
+
+    Returns:
+        Dict of Dict: which contains score
     """
     _pickle_file = ".abnormality_score.pkl"
 
@@ -2539,10 +2581,10 @@ def calculate_abnormality_score(verbose=False):
             pickle.dump(score, f)
 
     if verbose:
-        print("&", " & ".join(score.keys()), "\\\\")
+        print("&", " & ".join(sorted(score.keys())), "\\\\")
         for algo in score[list(score.keys())[0]].keys():
-            print(algo, "&", " & ".join(["%.3f" % score[key][algo] for key in score.keys()]), "\\\\")
-        print("Mean &", " & ".join(["%.4f" % numpy.mean(list(score[key].values())) for key in score.keys()]), "\\\\")
+            print(algo, "&", " & ".join(["%.3f" % score[key][algo] for key in sorted(score.keys())]), "\\\\")
+        print("Mean &", " & ".join(["%.4f" % numpy.mean(list(score[key].values())) for key in sorted(score.keys())]), "\\\\")
 
     matplotlib.use("Agg")
     matplotlib.rcParams.update({"font.size": 30})
