@@ -2193,13 +2193,48 @@ def draw_movement_department(verbose=False):
 
             matplotlib.pyplot.close()
 
+    if verbose:
+        print("Done!!")
 
-def draw_split_general_data(verbose=False, split=4):
+
+def draw_first_quarter_general_data(verbose=False, cycle=287):
     """
 
     """
     _general_data = get_general_zscore_data()
-    _node = [_general_data.shape[0] * s // split for s in range(split + 1)]
+    _general_data = _general_data.head(n=_general_data.shape[0] // 4)
+
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+    _general_data["mean"] = _general_data.mean(axis=1)
+    _general_data["median"] = _general_data.median(axis=1)
+    _general_data["q1"] = _general_data.quantile(q=0.25, axis="columns")
+    _general_data["q3"] = _general_data.quantile(q=0.75, axis="columns")
+
+    if verbose:
+        print(_general_data)
+
+    for column in sorted(_general_data.columns):
+        if verbose:
+            print(column)
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        fig = matplotlib.pyplot.figure()
+        ax = fig.add_subplot(111, projection="polar")
+        for i in range(_general_data.shape[0] // cycle):
+            ax.plot(2 * numpy.pi * numpy.arange(0, 1, 1 / cycle), _general_data[column][cycle * i:cycle * (i + 1)])
+        # ax.plot(2 * numpy.pi * numpy.arange(0, len(_general_data[column][-(_general_data.shape[0] % cycle):]) / cycle, 1 / cycle), _general_data[column][-(_general_data.shape[0] % cycle):])
+
+        matplotlib.pyplot.title("Cycle: " + str(cycle))
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "Polar_" + column + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    if verbose:
+        print("Done!!")
 
 
 if __name__ == "__main__":
@@ -2240,4 +2275,4 @@ if __name__ == "__main__":
     # draw_correlation_with_hazium_data(verbose=True, processes=100)
     # compare_abnormality(verbose=True)
     # draw_movement_department(verbose=True)
-    draw_split_general_data(verbose=True, split=4)
+    draw_first_quarter_general_data(verbose=True, cycle=287)
