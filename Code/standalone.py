@@ -22,7 +22,9 @@ import sklearn
 import sklearn.covariance
 import sklearn.ensemble
 import sklearn.manifold
+import sklearn.model_selection
 import sklearn.neighbors
+import sklearn.tree
 import sklearn.svm
 
 pandas.plotting.register_matplotlib_converters()
@@ -2490,6 +2492,59 @@ def draw_fourth_quarter_general_data(verbose=False, processes=100):
     matplotlib.pyplot.close()
 
 
+def calculate_abnormality_score(verbose=False):
+    """
+    """
+    _pickle_file = ".abnormality_score.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            score = pickle.load(f)
+    else:
+        abnormal_general_data = get_abnormal_general_data()
+        abnormal_hazium_data = get_abnormal_hazium_data()
+        general_data = get_general_zscore_data()
+
+        algorithms = list(abnormal_general_data.columns)[3:]
+        score = dict()
+
+        classifiers = [("KNeighbor", sklearn.neighbors.KNeighborsClassifier(n_jobs=100)), ("SVC", sklearn.svm.SVC(random_state=0)), ("DecisionTree", sklearn.tree.DecisionTreeClassifier(random_state=0)), ("RandomForest", sklearn.ensemble.RandomForestClassifier(random_state=0, n_jobs=100)), ("AdaBoost", sklearn.ensemble.AdaBoostClassifier(random_state=0))]
+
+        if verbose:
+            print("Make score")
+
+        for algorithm in algorithms:
+            if verbose:
+                print(">>", algorithm)
+
+            score[algorithm] = dict()
+            abnormal_data = list(map(lambda x: 1 if x else 0, list(abnormal_general_data[algorithm] & abnormal_hazium_data[algorithm])))
+
+            x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(general_data, abnormal_data, test_size=0.2, random_state=0)
+
+            for name, clf in classifiers:
+                if verbose:
+                    print(">>>>", name)
+                clf.fit(x_train, y_train)
+                score[algorithm][name] = clf.score(x_test, y_test)
+
+        if verbose:
+            print("Done!!")
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(score, f)
+
+    if verbose:
+        print("&", " & ".join(score.keys()), "\\\\")
+        for algo in score[list(score.keys())[0]].keys():
+            print(algo, "&", " & ".join(["%.3f" % score[key][algo] for key in score.keys()]), "\\\\")
+        print("Mean &", " & ".join(["%.3f" % numpy.mean(list(score[key].values())) for key in score.keys()]), "\\\\")
+
+    return score
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -2532,4 +2587,5 @@ if __name__ == "__main__":
     # draw_first_quarter_general_data(verbose=True, cycle=288)
     # draw_second_quarter_general_data(verbose=True, processes=100)
     # draw_third_quarter_general_data(verbose=True, cycle=288)
-    draw_fourth_quarter_general_data(verbose=True, processes=100)
+    # draw_fourth_quarter_general_data(verbose=True, processes=100)
+    calculate_abnormality_score(verbose=True)
