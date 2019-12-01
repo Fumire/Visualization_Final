@@ -188,7 +188,7 @@
                     \caption{Basic Statistics Data within Movement Distance}
                     \label{tb:movementdist}
                     \begin{tabular}{c||c|c|c|c|c|c|c}
-                        Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Item & Minimum & Maximum & Mean & q1 & Median & q3 & Standard Deviation \\ \hline
                         Value & 902.44 & 19999.38 & 10083.95 & 5642.54 & 10688.57 & 14134.16 & 4750.46 \\
                     \end{tabular}
                 \end{table}
@@ -414,7 +414,7 @@
                     \caption{Basic Statistics of R-Values}
                     \label{tb:rgeneral}
                     \begin{tabular}{c||c|c|c|c|c|c|c}
-                        Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Item & Minimum & Maximum & Mean & q1 & Median & q3 & Standard Deviation \\ \hline
                         Value & -0.88 & 1.0 & 0.11 & -0.12 & 0.08 & 0.34 & 0.37 \\
                     \end{tabular}
                 \end{table}
@@ -526,14 +526,14 @@
                     \label{fig:firstq}
                 \end{figure}
             
-                In the second-quarter, we calculated the peak in every columns in general building data. With figure \ref{fig:secondq}-(a), the distribution of peak width is shown; and, with figure \ref{fig:secondq}-(b), you can know that where is peak in general building data. Also, table \ref{tb:secondq} displays basic statistics value of peak width. with the data in figure \ref{fig:secondq} and table \ref{tb:secondq}, we can know that the general building data are suddenly increasing about \textit{15 indices}; in other word,s the general building data has steeps every \textit{75 minutes}. 
+                In the second-quarter, we calculated the peak in every columns in general building data. With figure \ref{fig:secondq}-(a), the distribution of peak width is shown; and, with figure \ref{fig:secondq}-(b), you can know that where is peak in general building data. Also, table \ref{tb:secondq} displays basic statistics value of peak width. With the data in figure \ref{fig:secondq} and table \ref{tb:secondq}, we can know that the general building data are suddenly increasing about \textit{15 indices}; in other words, the general building data has steeps every \textit{75 minutes}. 
                 
                 \begin{table}[htbp]
                     \centering
                     \caption{Basic Statistics Data with the peak in the Second-quarter}
                     \label{tb:secondq}
                     \begin{tabular}{c||c|c|c|c|c|c|c}
-                        Item & Minimum & Maximum & Average & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Item & Minimum & Maximum & Mean & q1 & Median & q3 & Standard Deviation \\ \hline
                         Value & 1.0 & 808.45 & 15.98 & 1.51 & 3.71 & 12.0 & 55.36 \\
                     \end{tabular}
                 \end{table}
@@ -552,14 +552,63 @@
                     \label{fig:secondq}
                 \end{figure}
             
+                As figure \ref{fig:firstq}, we drew the cyclic plots of the third-quarters of general building data as figure \ref{fig:thirdq}. As the first-quarters, the period is \textit{288 indices}, \textit{24 hours}, or \textit{1 day}. Therefore, there are two days which has increased general building data. 
+            
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{cc}
+                    \includegraphics[width=0.4 \linewidth]{figures/third1.png}
+                    &
+                    \includegraphics[width=0.4 \linewidth]{figures/third2.png}
+                    \\
+                    \mbox{(a) Mean} & \mbox{(b) Median} \\
+                    
+                    \includegraphics[width=0.4 \linewidth]{figures/third3.png}
+                    &
+                    \includegraphics[width=0.4 \linewidth]{figures/third4.png}
+                    \\
+                    \mbox{(c) q1} & \mbox{(d) q3} \\
+                    \end{array}$
+                    \caption{Cyclic Plots on Third-quarters}
+                    \label{fig:thirdq}
+                \end{figure}
+            
+                In the fourth-quarter, we calculated the under-peak in every columns in general building data. As figure \ref{fig:secondq}, with figure \ref{fig:fourthq}-(a), the distribution of under-peak width is displayed; and, with figure \ref{fig:fourthq}-(b), you can know that where is under-peak in general building data. Moreover, table \ref{tb:fourthq} shows basic statistics value of under-peak width. Amongst the data in figure \ref{fig:fourthq} and table \ref{tb:fourthq}, we can know that the general building data are rapidly decreasing about \textit{16 indices}; in other words, the general building data has under-steeps every \textit{80 minutes}.
+                
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Basic Statistics Data with the under-peak in the Fourth-quarter}
+                    \label{tb:fourthq}
+                    \begin{tabular}{c||c|c|c|c|c|c|c}
+                        Item & Minimum & Maximum & Mean & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Value & 1.0 & 850.54 & 16.36 & 1.11 & 2.77 & 11.68 & 69.86 \\
+                    \end{tabular}
+                \end{table}
+                
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{cc}
+                        \includegraphics[width=0.4 \linewidth]{figures/fourth1.png}
+                        &
+                        \includegraphics[width=0.4 \linewidth]{figures/fourth2.png}
+                        \\
+                        
+                        \mbox{(a) Under-peak Width Distribution} & \mbox{(b) Under-peak in Mean Column}
+                    \end{array}$
+                    \caption{Under-peak in the Fourth-quarter}
+                    \label{fig:fourthq}
+                \end{figure}
+            
             \subsubsection{Interesting Patterns}                                
                 According to these fact, we can know followings:
                 \begin{enumerate}
                     \item \textit{Thermostat Setpoint} is controlled by floor. Someone can adjust specific zone in floor, but the default value is sets on floor. (Table \ref{tb:rmax})
                     \item Some zone only have \textit{lights} for power consumption. (Table \ref{tb:rmax})
                     \item No \textit{strong} negative correlation exist. (Figure \ref{fig:lowest})
-                    \item In the first-quarters, the general building data make a cycle everyday. (Figure \ref{fig:firstq})
-                    \item In the second-quarters, the general building data are suddenly increasing about every 75 minutes. (Table \ref{tb:secondq} and Figure \ref{fig:secondq})
+                    \item In the first-quarter, the general building data make a cycle everyday. (Figure \ref{fig:firstq})
+                    \item In the second-quarter, the general building data are suddenly increasing about every 75 minutes. (Table \ref{tb:secondq} and Figure \ref{fig:secondq})
+                    \item There are two days which are increasing whole usage of the general building data. (Figure \ref{fig:thirdq})
+                    \item  In the fourth-quarter, the general building data are dramatically decreasing about every 80 minutes. (Table \ref{tb:fourthq} and Figure \ref{fig:fourthq})
                 \end{enumerate}
         
         \subsection[Question 3]{Describe up to five notable anomalies or unusual events you see in the data. Prioritize those issue that are most likely to represent a danger or a serious issue for building operations.}
@@ -637,7 +686,7 @@
         
         \subsection[Question 4]{Describe up to three observed relationships between the proximity card data and building data elements. If you find a causal relationship, describe your discovered cause and effect, the evidence you found the support it, and your level of confidence in your assessment of the relationship.}
             \label{sec:question4}
-            \subsubsection{General Information of Moving Average for General Building Data}
+            \subsubsection{General Information of Moving Mean for General Building Data}
             
             \subsubsection{Workflow}
                 \begin{figure}[htbp]
