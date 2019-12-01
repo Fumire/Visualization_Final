@@ -17,6 +17,7 @@ import numpy
 import pandas
 import pandas.plotting
 import scipy
+import scipy.signal
 import sklearn
 import sklearn.covariance
 import sklearn.ensemble
@@ -2197,9 +2198,18 @@ def draw_movement_department(verbose=False):
         print("Done!!")
 
 
-def draw_first_quarter_general_data(verbose=False, cycle=287):
+def draw_first_quarter_general_data(verbose=False, cycle=288):
     """
+    Draw plot about first quarter general building data.
 
+    Draw plot about first quater of general building data with given period. Last modified: 2019-12-02T00:51:34+0900
+
+    Args:
+        verbose (bool): Verbosity level
+        cycle (int): Period to draw
+
+    Returns:
+        None
     """
     _general_data = get_general_zscore_data()
     _general_data = _general_data.head(n=_general_data.shape[0] // 4)
@@ -2213,9 +2223,10 @@ def draw_first_quarter_general_data(verbose=False, cycle=287):
     if verbose:
         print(_general_data)
 
-    for column in sorted(_general_data.columns):
+    for column in ["mean", "median", "q1", "q3"]:
         if verbose:
             print(column)
+
         matplotlib.use("Agg")
         matplotlib.rcParams.update({"font.size": 30})
 
@@ -2223,7 +2234,6 @@ def draw_first_quarter_general_data(verbose=False, cycle=287):
         ax = fig.add_subplot(111, projection="polar")
         for i in range(_general_data.shape[0] // cycle):
             ax.plot(2 * numpy.pi * numpy.arange(0, 1, 1 / cycle), _general_data[column][cycle * i:cycle * (i + 1)])
-        # ax.plot(2 * numpy.pi * numpy.arange(0, len(_general_data[column][-(_general_data.shape[0] % cycle):]) / cycle, 1 / cycle), _general_data[column][-(_general_data.shape[0] % cycle):])
 
         matplotlib.pyplot.title("Cycle: " + str(cycle))
 
@@ -2235,6 +2245,106 @@ def draw_first_quarter_general_data(verbose=False, cycle=287):
 
     if verbose:
         print("Done!!")
+
+
+def draw_second_quarter_general_data_actual(column, is_drawing=False):
+    """
+    Draw general building data in second-quarter. (Actual)
+
+    Calcualte and draw the peak of general building data in given column. Last modified: 2019-12-02T02:39:17+0900
+
+    Args:
+        column (string): Mandatory. The column to be calculated the peak.
+        is_drawing (bool): If this is true, draw the peak plot for analysis.
+
+    Returns:
+        list: which contains the width of every peak.
+    """
+    _general_data = get_general_zscore_data()
+    _general_data = _general_data.head(n=_general_data.shape[0] * 2 // 4).tail(n=_general_data.shape[0] // 4)
+
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+    _general_data["mean"] = _general_data.mean(axis=1)
+    _general_data["median"] = _general_data.median(axis=1)
+    _general_data["q1"] = _general_data.quantile(q=0.25, axis="columns")
+    _general_data["q3"] = _general_data.quantile(q=0.75, axis="columns")
+
+    peak_points, peak_dict = scipy.signal.find_peaks(_general_data[column], width=1)
+
+    if is_drawing:
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.plot(range(len(_general_data[column])), _general_data[column])
+        matplotlib.pyplot.scatter(peak_points, _general_data[column].iloc[peak_points], marker="X", s=100, c="r")
+
+        matplotlib.pyplot.title(column)
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Value (Standardized)")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "SecondQuarters_" + column + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    return peak_dict["widths"]
+
+
+def draw_second_quarter_general_data(verbose=False, processes=100):
+    """
+    Draw general building data in second quarter. (Headquater)
+
+    Draw general building data in second quarter.
+
+    Args:
+        verbose (bool): Verbosity level
+        processes (int): number of threads
+
+    Returns:
+        None
+    """
+    _general_data = get_general_zscore_data()
+    _general_data = _general_data.head(n=_general_data.shape[0] * 2 // 4).tail(n=_general_data.shape[0] // 4)
+
+    _general_data.drop(columns=["Date/Time"], inplace=True)
+
+    if verbose:
+        print(_general_data)
+
+    with multiprocessing.Pool(processes=processes) as pool:
+        _width_lists = pool.map(draw_second_quarter_general_data_actual, _general_data.columns)
+
+    for column in ["mean", "median", "q1", "q3"]:
+        draw_second_quarter_general_data_actual(column, is_drawing=True)
+
+    _widths = list()
+    for l in _width_lists:
+        _widths += list(l)
+
+    if verbose:
+        statistics(_widths)
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.bar(range(len(_widths)), sorted(_widths, reverse=True))
+
+    matplotlib.pyplot.title("Peak Width Distribution")
+    matplotlib.pyplot.xlabel("Counts")
+    matplotlib.pyplot.ylabel("Peak Width")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "SecondQuaters_Width" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
 
 
 if __name__ == "__main__":
@@ -2275,4 +2385,6 @@ if __name__ == "__main__":
     # draw_correlation_with_hazium_data(verbose=True, processes=100)
     # compare_abnormality(verbose=True)
     # draw_movement_department(verbose=True)
-    draw_first_quarter_general_data(verbose=True, cycle=287)
+
+    # draw_first_quarter_general_data(verbose=True, cycle=288)
+    draw_second_quarter_general_data(verbose=True)
