@@ -657,7 +657,7 @@
                 Moreover, we can display the timeline of abnormality as figure \ref{fig:abnormaltime}. In the figure \ref{fig:abnormaltime}-(a), we can know that which algorithm consider specific time as abnormal events (yellow marked is abnormal); and, in the figure \ref{fig:abnormaltime}-(b), we can realize that how many algorithms consider specific time as abnormal events.
             
             \subsubsection{Score of Classification of Abnormality}
-                To decide the best algorithm for find abnormality, we use these five classifier algorithms for scoring: \textit{KNeighbor}, \textit{SVC} \cite{ref:svc1, ref:svc2}, \textit{DecisionTree} \cite{ref:decisiontree1, ref:decisiontree2, ref:decisiontree3}, \textit{RandomForest} \cite{ref:decisiontree3}, \textit{AdaBoost} \cite{ref:ada1, ref:ada2}. The scores are in table \ref{tb:abnormal}; the highest score is \textit{0.9938} on \textit{LocalOutlier} algorithm. Therefore, we choose \textit{LocalOutlier} algorithm for finding abnormality. Note that the train data and the test data are randomly selected with \( 0.8 : 0.2\) ratio, and the seed is specified for repeated result. 
+                To decide the best algorithm for find abnormality, we use these five classifier algorithms for scoring: \textit{KNeighbor}, \textit{SVC} \cite{ref:svc1, ref:svc2}, \textit{DecisionTree} \cite{ref:decisiontree1, ref:decisiontree2, ref:decisiontree3}, \textit{RandomForest} \cite{ref:decisiontree3}, and \textit{AdaBoost} \cite{ref:ada1, ref:ada2}. The scores are in table \ref{tb:abnormal}; the highest score is \textit{0.9938} on \textit{LocalOutlier} algorithm. Therefore, we choose \textit{LocalOutlier} algorithm for finding abnormality. Note that the train data and the test data are randomly selected with \( 0.8 : 0.2\) ratio, and the seed is specified for repeated result. 
                 
                 \begin{table}[htbp]
                     \centering
@@ -674,10 +674,10 @@
                     \end{tabular}
                 \end{table}
             
-            \subsubsection{Danger for Building Operation}
+            \subsubsection{Column for Abnormality}
                 Now, we know that when is abnormal in general building data, and the general building data \textit{per se}. Therefore, we can calculate the difference of mean value for each columns in general building data. In other words, we can measure that which column in general building data most differ between normal and abnormal timing.
                 
-                The distribution of differences between mean values for whole columns of general building data is figure \ref{fig:dmean}; also, the basic statistics values of differences between mean values are in table \ref{tb:dmean}. Furthermore, we only choose columns which has the difference between mean values is bigger than \textit{0.5}. With this process, only 28 columns are selected amongst 387 columns.
+                The distribution of differences between mean values for whole columns of general building data is figure \ref{fig:dmean}; also, the basic statistics values of differences between mean values are in table \ref{tb:dmean}.
                 
                 \begin{table}[htbp]
                     \centering
@@ -694,6 +694,49 @@
                     \includegraphics[width=0.4 \linewidth]{figures/meanvalue.png}
                     \caption{Distribution of Differences between Mean Value}
                     \label{fig:dmean}
+                \end{figure}
+            
+            \subsubsection{Danger for Building Operation}
+                Figure \ref{fig:heatmap1} display two heatmap about R-values: figure \ref{fig:heatmap1}-(a) is consist with the data which marked as \textit{normal}; and, figure \ref{fig:heatmap1}-(b) contains the data which marked as \textit{abnormal}. However, as shown as figure \ref{fig:heatmap1}, the R-values are not significant; in other words, R-squared values are too small to give confidence for correlation. Therefore, we divided the abnormal data with comparing the general building data and Hazium data directly. As we mentioned herein-above, all of values are standardized, so we can compare two values one-by-one.
+                
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{cc}
+                        \includegraphics[width=0.4 \linewidth]{figures/HeatmapNormal.png}
+                        &
+                        \includegraphics[width=0.4 \linewidth]{figures/HeatmapAbnormal.png}
+                        \\
+                        \mbox{(a) Normal} & \mbox{(b) Abnormal}
+                    \end{array}$
+                    \caption{Heatmap of R-values between General Building Data and Hazium Data}
+                    \label{fig:heatmap1}
+                \end{figure}
+            
+                Figure \ref{fig:heatmap2} contains two heatmap plot of divided abnormal data. Figure \ref{fig:heatmap2}-(a) is drawn with the data which has higher general building data than Hazium data; and also, figure \ref{fig:heatmap2}-(b) is written with the data which has lower general building data. With comparing figure \ref{fig:heatmap1} and figure \ref{fig:heatmap2}, the R-values in \ref{fig:heatmap2} is bigger than the R-values in \ref{fig:heatmap2}. In other words, in the (General Building Data)--(Hazium Data) plot, the scatter data are aligned near the X-axis and Y-axis. 
+            
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{cc}
+                        \includegraphics[width=0.4 \linewidth]{figures/HeatmapHigher.png}
+                        &
+                        \includegraphics[width=0.4 \linewidth]{figures/HeatmapLower.png}
+                        \\
+                        
+                        \mbox{(a) Higher} & \mbox{(b) Lower} \\
+                    \end{array}$
+                    \caption{Heatmap of R-values with Higher and Lower General Building Data}
+                    \label{fig:heatmap2}
+                \end{figure}
+            
+                With the data in figure \ref{fig:heatmap2}, we can select the column which has the highest sum of R-values. In this data, combination of the column (F\_2\_Z\_16 SUPPLY INLET Temperature) and the data set (f2z2-MC2.csv) has the highest value. Figure \ref{fig:scatter} is written with this combination. As we mentioned herein-above, many points are along the X-axis or the Y-axis. 
+                
+                $\therefore$ Hence, if the data (F\_2\_Z\_16 SUPPLY INLET Temperature) is decreasing, then the Hazium concentration of Zone 2 on Floor 2 will be increasing; and \textit{vice versa}.
+            
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=0.4 \linewidth]{figures/scatter.png}
+                    \caption{Scatter Plot between General Building Data and Hazium Data}
+                    \label{fig:scatter}
                 \end{figure}
         
         \subsection[Question 4]{Describe up to three observed relationships between the proximity card data and building data elements. If you find a causal relationship, describe your discovered cause and effect, the evidence you found the support it, and your level of confidence in your assessment of the relationship.}
