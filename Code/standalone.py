@@ -2628,9 +2628,10 @@ def compare_column(verbose=False, processes=100):
 
     with multiprocessing.Pool(processes=processes) as pool:
         pvalues = [(a, b) for a, b in zip(pool.map(compare_column_actual, sorted(general_data.columns)), sorted(general_data.columns))]
-        pvalues = sorted(pvalues, reverse=True)
+    pvalues = sorted(pvalues, reverse=True)
 
     if verbose:
+        print(pvalues)
         statistics(list(map(lambda x: x[0], pvalues)))
 
     matplotlib.use("Agg")
@@ -2657,7 +2658,158 @@ def compare_column(verbose=False, processes=100):
     if verbose:
         print("After filtering:", len(pvalues))
 
-    return pvalues
+    return list(map(lambda x: x[1], pvalues))
+
+
+def compare_general_hazium(verbose=False, processes=100):
+    """
+    """
+    general_data = get_general_zscore_data()
+    hazium_data = get_all_hazium_data()
+
+    general_data.drop(columns=["Date/Time"], inplace=True)
+    hazium_data.drop(columns=["Date/Time"], inplace=True)
+
+    abnormal_index = get_abnormal_general_data()["localoutlier"]
+
+    selected_columns = compare_column()
+    # selected_columns = sorted(general_data.columns)
+
+    with multiprocessing.Pool(processes=processes) as pool:
+        normal_values = list()
+        abnormal_values = list()
+        abnormal_increasing_values = list()
+        abnormal_decreasing_values = list()
+
+        for x in hazium_data.columns:
+            normal_values.append(pool.starmap(r_value, [(hazium_data[~(abnormal_index)][x], general_data[~(abnormal_index)][y]) for y in selected_columns]))
+            abnormal_values.append(pool.starmap(r_value, [(hazium_data[(abnormal_index)][x], general_data[(abnormal_index)][y]) for y in selected_columns]))
+            abnormal_increasing_values.append(pool.starmap(r_value, [(hazium_data[(abnormal_index) & (general_data[y] > hazium_data[x])][x], general_data[(abnormal_index) & (general_data[y] > hazium_data[x])][y]) for y in selected_columns]))
+            abnormal_decreasing_values.append(pool.starmap(r_value, [(hazium_data[(abnormal_index) & (general_data[y] < hazium_data[x])][x], general_data[(abnormal_index) & (general_data[y] < hazium_data[x])][y]) for y in selected_columns]))
+
+    for name, value in [("Normal", normal_values), ("Abnormal", abnormal_values), ("Higher", abnormal_increasing_values), ("Lower", abnormal_decreasing_values)]:
+        if verbose:
+            print(">>", name)
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.pcolor(value)
+
+        matplotlib.pyplot.title(name + ": " + "%.2f" % numpy.mean(value))
+        matplotlib.pyplot.xlabel("General Data")
+        matplotlib.pyplot.ylabel("Hazium Data")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.yticks([])
+        matplotlib.pyplot.colorbar()
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "Heatmap_" + name + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    max_x, max_y, v = None, None, -2
+    for i, x in enumerate(hazium_data.columns):
+        for j, y in enumerate(selected_columns):
+            if abnormal_increasing_values[i][j] + abnormal_decreasing_values[i][j] > v:
+                max_x, max_y, v = x, y, abnormal_increasing_values[i][j] + abnormal_decreasing_values[i][j]
+
+    if verbose:
+        print(max_x, "&", max_y, ":", v)
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.scatter(general_data[(abnormal_index) & (general_data[max_y] < hazium_data[max_x])][max_y], hazium_data[(abnormal_index) & (general_data[max_y] < hazium_data[max_x])][max_x], label="Lower")
+    matplotlib.pyplot.scatter(general_data[(abnormal_index) & (general_data[max_y] > hazium_data[max_x])][max_y], hazium_data[(abnormal_index) & (general_data[max_y] > hazium_data[max_x])][max_x], label="Higher")
+
+    matplotlib.pyplot.title("Scatter Map")
+    matplotlib.pyplot.xlabel(max_y)
+    matplotlib.pyplot.ylabel("Hazium: " + str(max_x))
+    matplotlib.pyplot.grid(True)
+    matplotlib.pyplot.legend()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "Scatter" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.plot(range(len(general_data[abnormal_index][max_y])), general_data[abnormal_index][max_y], label="Abnormal")
+    matplotlib.pyplot.plot(range(len(hazium_data[abnormal_index][max_x])), hazium_data[abnormal_index][max_x], label="Hazium")
+
+    matplotlib.pyplot.title("Plot of General Data & Hazium Data")
+    matplotlib.pyplot.xlabel("Time")
+    matplotlib.pyplot.ylabel("Value (Standardized)")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+    matplotlib.pyplot.legend()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "Plot" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+
+def get_prox_data_frequency(verbose=False, is_drawing=False):
+    """
+    """
+    _pickle_file = ".prox_frequency.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            frequency_data = pickle.load(f)
+    else:
+        if verbose:
+            print("Calculating...")
+
+        prox_data = get_both_prox_data()
+        frequency_data = pandas.DataFrame(data=[], columns=["timestamp", "number"])
+
+        pointing, max_time = datetime.datetime(year=2016, month=5, day=31), datetime.datetime(year=2016, month=6, day=14)
+
+        while pointing < max_time:
+            frequency_data = frequency_data.append(other={"timestamp": pointing, "number": len(prox_data[(pointing <= prox_data["timestamp"]) & (prox_data["timestamp"] < (pointing + datetime.timedelta(minutes=5)))])}, ignore_index=True)
+
+            pointing += datetime.timedelta(minutes=5)
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(frequency_data, f)
+
+    if verbose:
+        print(frequency_data)
+        statistics(list(frequency_data["number"]))
+
+    if is_drawing:
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.bar(range(len(frequency_data["number"])), sorted(frequency_data["number"], reverse=True))
+
+        matplotlib.pyplot.title("Distribution of Frequency for prox Data")
+        matplotlib.pyplot.xlabel("Counts")
+        matplotlib.pyplot.ylabel("Frequency")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.grid(True)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "FrequencyDistribution" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    return frequency_data
 
 
 if __name__ == "__main__":
@@ -2704,4 +2856,6 @@ if __name__ == "__main__":
     # draw_third_quarter_general_data(verbose=True, cycle=288)
     # draw_fourth_quarter_general_data(verbose=True, processes=100)
     # calculate_abnormality_score(verbose=True)
-    compare_column(verbose=True)
+    # compare_column(verbose=True)
+    # compare_general_hazium(verbose=True)
+    get_prox_data_frequency(verbose=True, is_drawing=True)
