@@ -637,7 +637,7 @@
                     \label{fig:workflow3}
                 \end{figure}
             
-            \subsubsection{Find Abnormality in General Building Data}       
+            \subsubsection{Abnormality in General Building Data}       
                 To find patterns which appear in the building data, we should find that normality/abnormality in the building data. However, there are over 400 columns in the general building data; therefore, it is almost impossible to find abnormality column-by-column by human. Hence, we used these four algorithms which are included in scikit-learn: \textit{EllipticEnvelope} \cite{ref:normal1}, \textit{OneClassSVM}, \textit{IsolationForest} \cite{ref:normal2, ref:normal3}, and \textit{LocalOutlierFactor} \cite{ref:normal4}.
                 
                 \begin{figure}[htbp]
@@ -656,35 +656,8 @@
                 
                 Moreover, we can display the timeline of abnormality as figure \ref{fig:abnormaltime}. In the figure \ref{fig:abnormaltime}-(a), we can know that which algorithm consider specific time as abnormal events (yellow marked is abnormal); and, in the figure \ref{fig:abnormaltime}-(b), we can realize that how many algorithms consider specific time as abnormal events.
             
-            \subsubsection{Abnormality of Hazium Data}
-                As figure \ref{fig:abnormaltime}, we draw figure \ref{fig:abnormaltime2} with four algorithms which mentioned hereinbefore. 
-                
-                \begin{figure}[htbp]
-                    \centering
-                    $\begin{array}{cc}
-                        \includegraphics[width=0.4 \linewidth]{figures/normaltime3.png}
-                        &
-                        \includegraphics[width=0.4 \linewidth]{figures/normaltime4.png}
-                        \\
-                        
-                        \mbox{(a)} & \mbox{(b)}
-                    \end{array}$
-                    \caption{Abnormality in Hazium Data by Timeline}
-                    \label{fig:abnormaltime2}
-                \end{figure}
-            
-            \subsubsection{Abnormality of General Building Data and Hazium Data}
-                In figure \ref{fig:abnormalboth}, you can see the abnormality both in general building data and Hazium data. Green means single abnormality; and, yellow means abnormal in both. 
-                
-                \begin{figure}[htbp]
-                    \centering
-                    \includegraphics[width=0.4 \linewidth]{figures/abnormalboth.png}
-                    \caption{Abnormality in General Building Data and Hazium Data}
-                    \label{fig:abnormalboth}
-                \end{figure}
-            
             \subsubsection{Score of Classification of Abnormality}
-                To decide the best algorithm for find abnormality, we use these five classifier algorithms for scoring: \textit{KNeighbor}, \textit{SVC} \cite{ref:svc1, ref:svc2}, \textit{DecisionTree} \cite{ref:decisiontree1, ref:decisiontree2, ref:decisiontree3}, \textit{RandomForest} \cite{ref:decisiontree3}, \textit{AdaBoost} \cite{ref:ada1, ref:ada2}. The scores are in table \ref{tb:abnormal}; the highest score is \textit{0.9960} on \textit{IsolationForest} algorithm. Therefore, we choose \textit{IsolationForest} algorithm for finding abnormality. Note that the train data and the test data are randomly selected with \( 0.8 : 0.2\) ratio, and the seed is specified for repeated result. 
+                To decide the best algorithm for find abnormality, we use these five classifier algorithms for scoring: \textit{KNeighbor}, \textit{SVC} \cite{ref:svc1, ref:svc2}, \textit{DecisionTree} \cite{ref:decisiontree1, ref:decisiontree2, ref:decisiontree3}, \textit{RandomForest} \cite{ref:decisiontree3}, \textit{AdaBoost} \cite{ref:ada1, ref:ada2}. The scores are in table \ref{tb:abnormal}; the highest score is \textit{0.9938} on \textit{LocalOutlier} algorithm. Therefore, we choose \textit{LocalOutlier} algorithm for finding abnormality. Note that the train data and the test data are randomly selected with \( 0.8 : 0.2\) ratio, and the seed is specified for repeated result. 
                 
                 \begin{table}[htbp]
                     \centering
@@ -692,16 +665,36 @@
                     \label{tb:abnormal}
                     \begin{tabular}{c|cccc}
                         & Elliptic & OneClassSVM & IsolationForest & LocalOutlier \\ \hline
-                        KNeighbor & 0.994 & 0.989 & 0.995 & 0.985 \\
-                        SVC & 0.990 & 0.986 & 0.993 & 0.986 \\
-                        DecisionTree & 0.999 & 0.999 & 0.999 & 0.981 \\
-                        RandomForest & 0.998 & 0.999 & 0.996 & 0.986 \\
-                        AdaBoost & 0.999 & 1.000 & 0.998 & 0.979 \\ \hline
-                        Mean & 0.9958 & 0.9945 & 0.9960 & 0.9836 \\
+                        KNeighbor & 0.995 & 0.991 & 0.929 & 0.988 \\
+                        SVC & 0.994 & 0.993 & 0.919 & 0.985 \\
+                        DecisionTree & 0.988 & 0.989 & 0.948 & 0.999 \\
+                        RandomForest & 0.993 & 0.995 & 0.942 & 0.999 \\
+                        AdaBoost & 0.986 & 0.985 & 0.937 & 0.999 \\ \hline
+                        Mean & 0.9911 & 0.9906 & 0.9351 & 0.9938 \\
                     \end{tabular}
                 \end{table}
             
             \subsubsection{Danger for Building Operation}
+                Now, we know that when is abnormal in general building data, and the general building data \textit{per se}. Therefore, we can calculate the difference of mean value for each columns in general building data. In other words, we can measure that which column in general building data most differ between normal and abnormal timing.
+                
+                The distribution of differences between mean values for whole columns of general building data is figure \ref{fig:dmean}; also, the basic statistics values of differences between mean values are in table \ref{tb:dmean}. Furthermore, we only choose columns which has the difference between mean values is bigger than \textit{0.5}. With this process, only 28 columns are selected amongst 387 columns.
+                
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Basic Statistics Data with the Differences of Mean Values}
+                    \label{tb:dmean}
+                    \begin{tabular}{c||c|c|c|c|c|c|c}
+                        Item & Minimum & Maximum & Mean & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Value & 0.00058 & 1.05075 & 0.159379 & 0.05347 & 0.1097855 & 0.1756 & 0.171869 \\
+                    \end{tabular}
+                \end{table}
+            
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=0.4 \linewidth]{figures/meanvalue.png}
+                    \caption{Distribution of Differences between Mean Value}
+                    \label{fig:dmean}
+                \end{figure}
         
         \subsection[Question 4]{Describe up to three observed relationships between the proximity card data and building data elements. If you find a causal relationship, describe your discovered cause and effect, the evidence you found the support it, and your level of confidence in your assessment of the relationship.}
             \label{sec:question4}
