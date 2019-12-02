@@ -2628,6 +2628,7 @@ def compare_column(verbose=False, processes=100):
 
     with multiprocessing.Pool(processes=processes) as pool:
         pvalues = [(a, b) for a, b in zip(pool.map(compare_column_actual, sorted(general_data.columns)), sorted(general_data.columns))]
+        pvalues = sorted(pvalues, reverse=True)
 
     if verbose:
         statistics(list(map(lambda x: x[0], pvalues)))
@@ -2636,7 +2637,7 @@ def compare_column(verbose=False, processes=100):
     matplotlib.rcParams.update({"font.size": 30})
 
     matplotlib.pyplot.figure()
-    matplotlib.pyplot.bar(range(len(pvalues)), sorted(list(map(lambda x: x[0], pvalues)), reverse=True))
+    matplotlib.pyplot.bar(range(len(pvalues)), list(map(lambda x: x[0], pvalues)))
 
     matplotlib.pyplot.title("Differences of Mean Distribution")
     matplotlib.pyplot.xlabel("Columns")
@@ -2652,9 +2653,11 @@ def compare_column(verbose=False, processes=100):
 
     if verbose:
         print("Before filtering:", len(pvalues))
-    pvalues = pvalues[:len(pvalues) // 10]
+    pvalues = list(filter(lambda x: x[0] > 0.5, pvalues))
     if verbose:
         print("After filtering:", len(pvalues))
+
+    return pvalues
 
 
 if __name__ == "__main__":
