@@ -2546,7 +2546,6 @@ def calculate_abnormality_score(verbose=False):
             score = pickle.load(f)
     else:
         abnormal_general_data = get_abnormal_general_data()
-        abnormal_hazium_data = get_abnormal_hazium_data()
         general_data = get_general_zscore_data()
 
         general_data.drop(columns=["Date/Time"], inplace=True)
@@ -2564,7 +2563,7 @@ def calculate_abnormality_score(verbose=False):
                 print(">>", algorithm)
 
             score[algorithm] = dict()
-            abnormal_data = list(map(lambda x: 1 if x else 0, list(abnormal_general_data[algorithm] & abnormal_hazium_data[algorithm])))
+            abnormal_data = list(map(lambda x: 1 if x else 0, list(abnormal_general_data[algorithm])))
 
             x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(general_data, abnormal_data, test_size=0.2, random_state=0)
 
@@ -2607,6 +2606,55 @@ def calculate_abnormality_score(verbose=False):
     matplotlib.pyplot.close()
 
     return score
+
+
+def compare_column_actual(column):
+    """
+    """
+    algorithm = "localoutlier"
+    abnormal_index = get_abnormal_general_data()[algorithm]
+
+    general_data = get_general_zscore_data()
+
+    return abs(numpy.mean(general_data[abnormal_index][column]) - numpy.mean(general_data[~(abnormal_index)][column]))
+
+
+def compare_column(verbose=False, processes=100):
+    """
+    """
+    general_data = get_general_zscore_data()
+
+    general_data.drop(columns=["Date/Time"], inplace=True)
+
+    with multiprocessing.Pool(processes=processes) as pool:
+        pvalues = [(a, b) for a, b in zip(pool.map(compare_column_actual, sorted(general_data.columns)), sorted(general_data.columns))]
+
+    if verbose:
+        statistics(list(map(lambda x: x[0], pvalues)))
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.bar(range(len(pvalues)), sorted(list(map(lambda x: x[0], pvalues)), reverse=True))
+
+    matplotlib.pyplot.title("Differences of Mean Distribution")
+    matplotlib.pyplot.xlabel("Columns")
+    matplotlib.pyplot.ylabel("Differences of Mean")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.grid(True)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "dMeanDistribution" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
+    if verbose:
+        print("Before filtering:", len(pvalues))
+    pvalues = pvalues[:len(pvalues) // 10]
+    if verbose:
+        print("After filtering:", len(pvalues))
 
 
 if __name__ == "__main__":
@@ -2652,4 +2700,5 @@ if __name__ == "__main__":
     # draw_second_quarter_general_data(verbose=True, processes=100)
     # draw_third_quarter_general_data(verbose=True, cycle=288)
     # draw_fourth_quarter_general_data(verbose=True, processes=100)
-    calculate_abnormality_score(verbose=True)
+    # calculate_abnormality_score(verbose=True)
+    compare_column(verbose=True)
