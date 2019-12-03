@@ -2844,6 +2844,164 @@ def get_prox_data_frequency(verbose=False, is_drawing=False):
     return frequency_data
 
 
+def draw_cyclic_prox_data(verbose=False):
+    """
+    """
+    prox_data = get_prox_data_frequency()
+    min_day, max_day = min(prox_data["timestamp"]).date(), max(prox_data["timestamp"]).date()
+
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    if verbose:
+        print("Drawing")
+
+    for wanted in ["total", "mobile", "fixed"]:
+        if verbose:
+            print(">>", wanted)
+
+        pointing = min_day
+
+        fig = matplotlib.pyplot.figure()
+        ax = fig.add_subplot(111, projection="polar")
+        while pointing <= max_day:
+            drawing_data = prox_data.loc[(prox_data["timestamp"] >= pointing) & (prox_data["timestamp"] < (pointing + datetime.timedelta(days=1)))]
+            ax.plot(2 * numpy.pi * numpy.arange(0, 1, 1 / len(drawing_data[wanted])), list(drawing_data[wanted]), alpha=0.3, c="b")
+
+            pointing += datetime.timedelta(days=1)
+
+        matplotlib.pyplot.title(wanted)
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(24, 24)
+        fig.savefig(figure_directory + "ProxDataCycle_" + wanted + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+
+def get_daily_prox_data(verbose=False):
+    """
+    """
+    _pickle_file = ".prox_daily_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        with open(_pickle_file, "rb") as f:
+            total_data, fixed_data, mobile_data = pickle.load(f)
+    else:
+        prox_data = get_prox_data_frequency()
+
+        minute_table = [datetime.time(hour=i // 60, minute=i % 60) for i in range(0, 60 * 24, 5)]
+
+        total_data, fixed_data, mobile_data = pandas.DataFrame(data=minute_table, columns=["timestamp"]), pandas.DataFrame(data=minute_table, columns=["timestamp"]), pandas.DataFrame(data=minute_table, columns=["timestamp"])
+
+        count = 0
+        pointing, max_day = min(prox_data["timestamp"]).date(), max(prox_data["timestamp"]).date()
+
+        while pointing <= max_day:
+            wanted_data = prox_data.loc[(prox_data["timestamp"] >= pointing) & (prox_data["timestamp"] < (pointing + datetime.timedelta(days=1)))]
+
+            total_data[count] = list(wanted_data["total"])
+            fixed_data[count] = list(wanted_data["fixed"])
+            mobile_data[count] = list(wanted_data["mobile"])
+
+            pointing += datetime.timedelta(days=1)
+            count += 1
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump((total_data, fixed_data, mobile_data), f)
+
+    if verbose:
+        print("Total prox data:")
+        print(total_data)
+        print("Fixed prox data:")
+        print(fixed_data)
+        print("Mobile prox data:")
+        print(mobile_data)
+
+    return total_data, fixed_data, mobile_data
+
+
+def get_abnormal_prox_data(verbose=False, is_drawing=False):
+    """
+    """
+    _pickle_file = ".abnormal_prox_data.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            abnormal = pickle.load(f)
+    else:
+        if verbose:
+            print("Calculating...")
+
+        general_data = get_general_zscore_data()
+        prox_data = get_prox_data_frequency()
+        abnormal = pandas.DataFrame()
+
+        prox_data = prox_data.merge(general_data, how="outer", left_index=True, right_index=True)
+        prox_data = prox_data.merge(general_data)
+        abnormal["timestamp"] = prox_data["timestamp"].copy()
+        prox_data.drop(columns=["timestamp", "Date/Time"], inplace=True)
+
+        for name, algorithm in zip(["elliptic", "oneclasssvm", "isolationforest", "localoutlier"], [sklearn.covariance.EllipticEnvelope(random_state=0), sklearn.svm.OneClassSVM(gamma="scale"), sklearn.ensemble.IsolationForest(random_state=0, n_jobs=100), sklearn.neighbors.LocalOutlierFactor(n_jobs=100)]):
+            print(">>", name)
+            abnormal[name] = list(map(lambda x: True if x == -1 else False, algorithm.fit_predict(prox_data)))
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(abnormal, f)
+
+    if verbose:
+        print(abnormal)
+
+    if is_drawing:
+        drawing_data = [(list(map(lambda x: 1 if x else 0, list(abnormal[column])))) for column in list(abnormal.columns)[1:]]
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.pcolor(drawing_data)
+
+        matplotlib.pyplot.title("Abnormality by Algorithms")
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Algorithms")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.yticks(numpy.arange(4) + 0.5, list(abnormal.columns)[1:])
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "AbnormalityProx" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        data = drawing_data[:]
+        drawing_data = [0 for _ in data[0]]
+        for elements in data:
+            for i, element in enumerate(elements):
+                drawing_data[i] += element
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.bar(range(len(drawing_data)), drawing_data)
+
+        matplotlib.pyplot.title("Total Abnormality")
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Abnormality Score")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.yticks([])
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "TotalAbnormalityProx" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+    return abnormal
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -2890,4 +3048,8 @@ if __name__ == "__main__":
     # calculate_abnormality_score(verbose=True)
     # compare_column(verbose=True)
     # compare_general_hazium(verbose=True)
-    get_prox_data_frequency(verbose=True, is_drawing=True)
+
+    # get_prox_data_frequency(verbose=True, is_drawing=True)
+    # draw_cyclic_prox_data(verbose=True)
+    # get_daily_prox_data(verbose=True)
+    get_abnormal_prox_data(verbose=True, is_drawing=True)
