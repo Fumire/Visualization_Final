@@ -2774,12 +2774,15 @@ def get_prox_data_frequency(verbose=False, is_drawing=False):
             print("Calculating...")
 
         prox_data = get_both_prox_data()
-        frequency_data = pandas.DataFrame(data=[], columns=["timestamp", "number"])
+        frequency_data = pandas.DataFrame(data=[], columns=["timestamp", "total", "mobile", "fixed"])
 
         pointing, max_time = datetime.datetime(year=2016, month=5, day=31), datetime.datetime(year=2016, month=6, day=14)
 
         while pointing < max_time:
-            frequency_data = frequency_data.append(other={"timestamp": pointing, "number": len(prox_data[(pointing <= prox_data["timestamp"]) & (prox_data["timestamp"] < (pointing + datetime.timedelta(minutes=5)))])}, ignore_index=True)
+            mobile = len(prox_data[(prox_data["type"].str.contains("mobile-prox")) & (pointing <= prox_data["timestamp"]) & (prox_data["timestamp"] < (pointing + datetime.timedelta(minutes=5)))])
+            fixed = len(prox_data[(prox_data["type"].str.contains("fixed-prox")) & (pointing <= prox_data["timestamp"]) & (prox_data["timestamp"] < (pointing + datetime.timedelta(minutes=5)))])
+
+            frequency_data = frequency_data.append({"timestamp": pointing, "total": mobile + fixed, "mobile": mobile, "fixed": fixed}, ignore_index=True)
 
             pointing += datetime.timedelta(minutes=5)
 
@@ -2788,14 +2791,22 @@ def get_prox_data_frequency(verbose=False, is_drawing=False):
 
     if verbose:
         print(frequency_data)
-        statistics(list(frequency_data["number"]))
+
+        print("Total:")
+        statistics(list(frequency_data["total"]))
+
+        print("Mobile:")
+        statistics(list(frequency_data["mobile"]))
+
+        print("Fixed:")
+        statistics(list(frequency_data["fixed"]))
 
     if is_drawing:
         matplotlib.use("Agg")
         matplotlib.rcParams.update({"font.size": 30})
 
         matplotlib.pyplot.figure()
-        matplotlib.pyplot.bar(range(len(frequency_data["number"])), sorted(frequency_data["number"], reverse=True))
+        matplotlib.pyplot.bar(range(len(frequency_data["total"])), sorted(frequency_data["total"], reverse=True))
 
         matplotlib.pyplot.title("Distribution of Frequency for prox Data")
         matplotlib.pyplot.xlabel("Counts")
@@ -2806,6 +2817,27 @@ def get_prox_data_frequency(verbose=False, is_drawing=False):
         fig = matplotlib.pyplot.gcf()
         fig.set_size_inches(32, 18)
         fig.savefig(figure_directory + "FrequencyDistribution" + current_time() + ".png")
+
+        matplotlib.pyplot.close()
+
+        matplotlib.use("Agg")
+        matplotlib.rcParams.update({"font.size": 30})
+
+        matplotlib.pyplot.figure()
+        matplotlib.pyplot.plot(frequency_data["timestamp"], frequency_data["total"], alpha=0.5, label="total")
+        matplotlib.pyplot.plot(frequency_data["timestamp"], frequency_data["mobile"], alpha=0.5, label="mobile")
+        matplotlib.pyplot.plot(frequency_data["timestamp"], frequency_data["fixed"], alpha=0.5, label="fixed")
+
+        matplotlib.pyplot.title("Frequence of prox Data")
+        matplotlib.pyplot.xlabel("Time")
+        matplotlib.pyplot.ylabel("Counts")
+        matplotlib.pyplot.xticks([])
+        matplotlib.pyplot.grid(True)
+        matplotlib.pyplot.legend()
+
+        fig = matplotlib.pyplot.gcf()
+        fig.set_size_inches(32, 18)
+        fig.savefig(figure_directory + "FrequencyPlot" + current_time() + ".png")
 
         matplotlib.pyplot.close()
 
