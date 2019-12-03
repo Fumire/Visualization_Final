@@ -519,15 +519,15 @@
                 \begin{figure}[htbp]
                     \centering
                     $\begin{array}{cc}
-                        \includegraphics[width=0.4 \linewidth]{figures/polar1.png}
+                        \includegraphics[width=0.3 \linewidth]{figures/polar1.png}
                         &
-                        \includegraphics[width=0.4 \linewidth]{figures/polar2.png}
+                        \includegraphics[width=0.3 \linewidth]{figures/polar2.png}
                         \\
                         \mbox{(a) Mean} & \mbox{(b) Median} \\
                         
-                        \includegraphics[width=0.4 \linewidth]{figures/polar3.png}
+                        \includegraphics[width=0.3 \linewidth]{figures/polar3.png}
                         &
-                        \includegraphics[width=0.4 \linewidth]{figures/polar4.png}
+                        \includegraphics[width=0.3 \linewidth]{figures/polar4.png}
                         \\
                         \mbox{(c) q1} & \mbox{(d) q3} \\
                     \end{array}$
@@ -566,15 +566,15 @@
                 \begin{figure}[htbp]
                     \centering
                     $\begin{array}{cc}
-                    \includegraphics[width=0.4 \linewidth]{figures/third1.png}
+                    \includegraphics[width=0.3 \linewidth]{figures/third1.png}
                     &
-                    \includegraphics[width=0.4 \linewidth]{figures/third2.png}
+                    \includegraphics[width=0.3 \linewidth]{figures/third2.png}
                     \\
                     \mbox{(a) Mean} & \mbox{(b) Median} \\
                     
-                    \includegraphics[width=0.4 \linewidth]{figures/third3.png}
+                    \includegraphics[width=0.3 \linewidth]{figures/third3.png}
                     &
-                    \includegraphics[width=0.4 \linewidth]{figures/third4.png}
+                    \includegraphics[width=0.3 \linewidth]{figures/third4.png}
                     \\
                     \mbox{(c) q1} & \mbox{(d) q3} \\
                     \end{array}$
@@ -767,6 +767,33 @@
                     \label{fig:freq}
                 \end{figure}
             
+                Moreover, with figure \ref{fig:timeline}, there are some peaks in the prox data. Also, the five peaks in the row, we can have reasonable doubt about weekday and weekend. 
+                
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=0.4 \linewidth]{figures/daily.png}
+                    \caption{Timeline with Frequency of prox Data}
+                    \label{fig:timeline}
+                \end{figure}
+            
+                With the reasonable doubt from figure \ref{fig:timeline}, we can draw the cycle plot with daily as figure \ref{fig:dailyprox}. With figure \ref{fig:dailyprox}, we can know what the employees look like such as their attendance time. 
+                
+                \begin{figure}[htbp]
+                    \centering
+                    $\begin{array}{ccc}
+                        \includegraphics[width=0.3 \linewidth]{figures/dailycycle1.png}
+                        &
+                        \includegraphics[width=0.3 \linewidth]{figures/dailycycle2.png}
+                        &
+                        \includegraphics[width=0.3 \linewidth]{figures/dailycycle3.png}
+                        \\
+                        
+                        \mbox{(a) Total data} & \mbox{(b) Fixed data}  & \mbox{(c) Mobile data}
+                    \end{array}$
+                    \caption{Daily Cycle of prox Data}
+                    \label{fig:dailyprox}
+                \end{figure}
+            
             \subsubsection{Workflow}
                 \begin{figure}[htbp]
                     \centering
@@ -775,6 +802,8 @@
                     \caption{Workflow for Question 4}
                     \label{fig:workflow4}
                 \end{figure}
+            
+            \subsubsection{}
             
             \subsubsection{Correlation between General Building Data and prox Data}
             
