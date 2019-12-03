@@ -167,6 +167,12 @@
             \subsubsection{Pillow}
                 \textit{Pillow} is the Python Imaging Library. \cite{ref:pil1}
                 
+         \subsection{JavaScript}
+            For implementing interactive plots in web, we used JavaScript for showing plots. 
+            
+            \subsubsection{Plotly}
+                \textit{Plotly} is a high-level, declarative charting library. plotly.js ships with over 40 chart types, including 3D charts, statistical graphs, and SVG maps. \cite{ref:plotly1}
+                
         \subsection{TSNE}
             T-distributed Stochastic Neighbor Embedding (TSNE) is a machine learning algorithm for visualization high-dimensional data in a low-dimensional space \cite{ref:tsne1}.
          
@@ -728,9 +734,9 @@
                     \label{fig:heatmap2}
                 \end{figure}
             
-                With the data in figure \ref{fig:heatmap2}, we can select the column which has the highest sum of R-values. In this data, combination of the column (F\_2\_Z\_16 SUPPLY INLET Temperature) and the data set (f2z2-MC2.csv) has the highest value. Figure \ref{fig:scatter} is written with this combination. As we mentioned herein-above, many points are along the X-axis or the Y-axis. 
+                With the data in figure \ref{fig:heatmap2}, we can select the column which has the highest sum of R-values. In this data, combination of the column (\textit{F\_2\_Z\_16 SUPPLY INLET Temperature}) and the data set (\textit{f2z2-MC2.csv}) has the highest value. Figure \ref{fig:scatter} is written with this combination. As we mentioned herein-above, many points are along the X-axis or the Y-axis. 
                 
-                $\therefore$ Hence, if the data (F\_2\_Z\_16 SUPPLY INLET Temperature) is decreasing, then the Hazium concentration of Zone 2 on Floor 2 will be increasing; and \textit{vice versa}.
+                $\therefore$ Hence, if the data (\textit{F\_2\_Z\_16 SUPPLY INLET Temperature}) is decreasing, then the Hazium concentration of Zone 2 on Floor 2 will be increasing; and \textit{vice versa}. Many other combinations exist; but, we only display this combination which has the highest R-values.
             
                 \begin{figure}[htbp]
                     \centering
@@ -741,7 +747,25 @@
         
         \subsection[Question 4]{Describe up to three observed relationships between the proximity card data and building data elements. If you find a causal relationship, describe your discovered cause and effect, the evidence you found the support it, and your level of confidence in your assessment of the relationship.}
             \label{sec:question4}
-            \subsubsection{General Information of Moving Mean for General Building Data}
+            \subsubsection{Frequency of prox Data}
+                The general building data has been reported every five minutes; however, prox data is a kind of movement data, so prox data has no cycle pattern at all. Therefore, we should gather and count prox data for comparing with general building data. In this manner, table \ref{tb:freq} and figure \ref{fig:freq} have the distribution information about frequence of prox data. 
+            
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Basic Statistics Data with the Frequency of prox Data}
+                    \label{tb:freq}
+                    \begin{tabular}{c||c|c|c|c|c|c|c}
+                        Item & Minimum & Maximum & Mean & q1 & Median & q3 & Standard Deviation \\ \hline
+                        Value & 0 & 141 & 8.014 & 0 & 0 & 10 & 15.35 \\
+                    \end{tabular}
+                \end{table}
+            
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=0.4 \linewidth]{figures/freq.png}
+                    \caption{Distribution with Frequency of prox Data}
+                    \label{fig:freq}
+                \end{figure}
             
             \subsubsection{Workflow}
                 \begin{figure}[htbp]
@@ -751,8 +775,6 @@
                     \caption{Workflow for Question 4}
                     \label{fig:workflow4}
                 \end{figure}
-            
-            \subsubsection{Frequency of prox Data}
             
             \subsubsection{Correlation between General Building Data and prox Data}
             
