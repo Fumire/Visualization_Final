@@ -3028,13 +3028,10 @@ def calculate_abnormality_prox_score(verbose=False):
             score = pickle.load(f)
     else:
         abnormal_index = get_abnormal_prox_data()
-        general_data = get_general_zscore_data()
         prox_data = get_prox_data_frequency()
         score = dict()
 
-        prox_data = prox_data.merge(general_data, how="outer", left_index=True, right_index=True)
-        prox_data = prox_data.merge(general_data)
-        prox_data.drop(columns=["timestamp", "Date/Time"], inplace=True)
+        prox_data.drop(columns=["timestamp"], inplace=True)
         abnormal_index.drop(columns=["timestamp"], inplace=True)
 
         algorithms = list(abnormal_index.columns)
@@ -3048,7 +3045,7 @@ def calculate_abnormality_prox_score(verbose=False):
                 score[algorithm] = dict()
                 abnormal_data = list(map(lambda x: 1 if x else 0, list(abnormal_index[algorithm])))
 
-                x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(general_data, abnormal_data, test_size=0.2, random_state=0)
+                x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(prox_data, abnormal_data, test_size=0.2, random_state=0)
 
                 for name, clf in classifiers:
                     if verbose:
@@ -3074,7 +3071,7 @@ def calculate_abnormality_prox_score(verbose=False):
 def draw_correaltion_prox_data(verbose=False, processes=100):
     """
     """
-    abnormal_index = get_abnormal_prox_data()["elliptic"]
+    abnormal_index = get_abnormal_prox_data()["localoutlier"]
 
     prox_data = get_prox_data_frequency()
     general_data = get_general_zscore_data()
@@ -3101,6 +3098,18 @@ def draw_correaltion_prox_data(verbose=False, processes=100):
         print(x_max, y_max, numpy.max(correlation))
         print(x_min, y_min, numpy.min(correlation))
 
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.scatter(general_data.loc[(abnormal_index)][y_max], prox_data.loc[(abnormal_index)][x_max], alpha=0.1)
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "asdf" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
 
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
@@ -3122,7 +3131,7 @@ if __name__ == "__main__":
     # regression_all_general_data(verbose=True, processes=100)
 
     # draw_movement(verbose=True, different_alpha=True)
-    movement_information = calculate_movement(verbose=True)
+    # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
     # [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
 
@@ -3154,5 +3163,5 @@ if __name__ == "__main__":
     # draw_cyclic_prox_data(verbose=True)
     # get_daily_prox_data(verbose=True)
     # get_abnormal_prox_data(verbose=True, is_drawing=True)
-    # calculate_abnormality_prox_score(verbose=True)
-    # draw_correaltion_prox_data(verbose=True, processes=100)
+    calculate_abnormality_prox_score(verbose=True)
+    draw_correaltion_prox_data(verbose=True, processes=100)
