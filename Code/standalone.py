@@ -31,6 +31,7 @@ pandas.plotting.register_matplotlib_converters()
 
 data_directory = "../Data/"
 figure_directory = "figures/"
+sql_directory = "csv/"
 
 _x_limit, _y_limit = 189, 111
 
@@ -904,11 +905,11 @@ def change_zone_to_coordinates(changing_data, which=None):
     return changing_data
 
 
-def get_both_prox_data(verbose=True):
+def get_both_prox_data(verbose=False):
     """
     Get both prox data.
 
-    Get mobile / fixed prox data. Return merged data. Last modified: 2019-11-24T23:38:16+0900
+    Get mobile / fixed prox data. Return merged data. Last modified: 2019-12-05T02:38:44+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -920,7 +921,7 @@ def get_both_prox_data(verbose=True):
 
     if os.path.exists(_pickle_file):
         with open(_pickle_file, "rb") as f:
-            return pickle.load(f)
+            _data = pickle.load(f)
     else:
         _mobile_data = get_mobile_prox_data()
         _fixed_data = change_zone_to_coordinates(get_fixed_prox_data(), "prox")
@@ -932,14 +933,22 @@ def get_both_prox_data(verbose=True):
         with open(_pickle_file, "wb") as f:
             pickle.dump(_data, f)
 
-        return _data
+    if verbose:
+        print(_data)
+
+    _sql_file = sql_directory + "prox_data.sql"
+    with open(_sql_file, "w") as f:
+        for index, row in _data.iterrows():
+            f.write("INSERT INTO `ProxData` (`IndexColumn`, `Timestamp`, `prox-id`, `floor`, `x`, `y`) VALUES (NULL, '" + str(row["timestamp"]) + "', '" + row["prox-id"] + "', '%d', '%d', '%d');" % (row["floor"], row["x"], row["y"]))
+
+    return _data
 
 
 def calculate_movement(verbose=False):
     """
     Calculate movement.
 
-    Calucate movement for each individual by ID. Save the result for further analysis. Last modified: 2019-11-27T03:16:57+0900
+    Calucate movement for each individual by ID. Save the result for further analysis. Last modified: 2019-12-05T04:52:14+0900
 
     Args:
         verbose (bool): Verbosity level
@@ -998,6 +1007,11 @@ def calculate_movement(verbose=False):
         print("Maxima:", _number)
         for name, value in sorted(tmp, reverse=True)[:_number]:
             print(name, "&", value, "\\\\")
+
+    _sql_file = sql_directory + "movement.sql"
+    with open(_sql_file, "w") as f:
+        for value, name in sorted(zip(_result.values(), _result.keys()), reverse=True):
+            f.write("INSERT INTO `MovementDistribution` (`IndexColumn`, `prox-id`, `distance`) VALUES (NULL, '%s', '%f');" % (name, value))
 
     return _result
 
@@ -3002,6 +3016,92 @@ def get_abnormal_prox_data(verbose=False, is_drawing=False):
     return abnormal
 
 
+def calculate_abnormality_prox_score(verbose=False):
+    """
+    """
+    _pickle_file = ".abnormal_prox_score.pkl"
+
+    if os.path.exists(_pickle_file):
+        if verbose:
+            print("Pickle exists")
+        with open(_pickle_file, "rb") as f:
+            score = pickle.load(f)
+    else:
+        abnormal_index = get_abnormal_prox_data()
+        general_data = get_general_zscore_data()
+        prox_data = get_prox_data_frequency()
+        score = dict()
+
+        prox_data = prox_data.merge(general_data, how="outer", left_index=True, right_index=True)
+        prox_data = prox_data.merge(general_data)
+        prox_data.drop(columns=["timestamp", "Date/Time"], inplace=True)
+        abnormal_index.drop(columns=["timestamp"], inplace=True)
+
+        algorithms = list(abnormal_index.columns)
+
+        classifiers = [("KNeighbor", sklearn.neighbors.KNeighborsClassifier(n_jobs=100)), ("SVC", sklearn.svm.SVC(random_state=0)), ("DecisionTree", sklearn.tree.DecisionTreeClassifier(random_state=0)), ("RandomForest", sklearn.ensemble.RandomForestClassifier(random_state=0, n_jobs=100)), ("AdaBoost", sklearn.ensemble.AdaBoostClassifier(random_state=0))]
+
+        for algorithm in algorithms:
+            if verbose:
+                print(">>", algorithm)
+
+                score[algorithm] = dict()
+                abnormal_data = list(map(lambda x: 1 if x else 0, list(abnormal_index[algorithm])))
+
+                x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(general_data, abnormal_data, test_size=0.2, random_state=0)
+
+                for name, clf in classifiers:
+                    if verbose:
+                        print(">>>>", name)
+                    clf.fit(x_train, y_train)
+                    score[algorithm][name] = clf.score(x_test, y_test)
+
+        if verbose:
+            print("Done!!")
+
+        with open(_pickle_file, "wb") as f:
+            pickle.dump(score, f)
+
+    if verbose:
+        print("&", " & ".join(sorted(score.keys())), "\\\\")
+        for algo in score[list(score.keys())[0]].keys():
+            print(algo, "&", " & ".join(["%.3f" % score[key][algo] for key in sorted(score.keys())]), "\\\\")
+        print("Mean &", " & ".join(["%.4f" % numpy.mean(list(score[key].values())) for key in sorted(score.keys())]), "\\\\")
+
+    return score
+
+
+def draw_correaltion_prox_data(verbose=False, processes=100):
+    """
+    """
+    abnormal_index = get_abnormal_prox_data()["elliptic"]
+
+    prox_data = get_prox_data_frequency()
+    general_data = get_general_zscore_data()
+
+    general_data.drop(columns=["Date/Time"], inplace=True)
+    prox_data.drop(columns=["timestamp"], inplace=True)
+
+    correlation = list()
+    with multiprocessing.Pool(processes=processes) as pool:
+        for x in prox_data.columns:
+            correlation.append(pool.starmap(r_value, [(list(prox_data.loc[(abnormal_index)][x]), list(general_data.loc[(abnormal_index)][y])) for y in general_data.columns]))
+
+    x_max, y_max = None, None
+    x_min, y_min = None, None
+
+    for i, x in enumerate(prox_data.columns):
+        for j, y in enumerate(general_data.columns):
+            if correlation[i][j] == numpy.max(correlation):
+                x_max, y_max = x, y
+            elif correlation[i][j] == numpy.min(correlation):
+                x_min, y_min = x, y
+
+    if verbose:
+        print(x_max, y_max, numpy.max(correlation))
+        print(x_min, y_min, numpy.min(correlation))
+
+
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
@@ -3009,6 +3109,7 @@ if __name__ == "__main__":
     # hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
     # fixed_prox_data = get_fixed_prox_data(show=True)
     # mobile_prox_data = get_mobile_prox_data(show=True)
+    # get_both_prox_data(verbose=True)
 
     # draw_mobile_prox_data(verbose=True)
     # tsne_prox_data = get_tsne_prox_data(is_drawing=True, verbose=True)
@@ -3021,7 +3122,7 @@ if __name__ == "__main__":
     # regression_all_general_data(verbose=True, processes=100)
 
     # draw_movement(verbose=True, different_alpha=True)
-    # movement_information = calculate_movement(verbose=True)
+    movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
     # [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
 
@@ -3052,4 +3153,6 @@ if __name__ == "__main__":
     # get_prox_data_frequency(verbose=True, is_drawing=True)
     # draw_cyclic_prox_data(verbose=True)
     # get_daily_prox_data(verbose=True)
-    get_abnormal_prox_data(verbose=True, is_drawing=True)
+    # get_abnormal_prox_data(verbose=True, is_drawing=True)
+    # calculate_abnormality_prox_score(verbose=True)
+    # draw_correaltion_prox_data(verbose=True, processes=100)
