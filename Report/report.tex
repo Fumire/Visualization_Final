@@ -878,7 +878,23 @@
                     \label{fig:abnormalprox}
                 \end{figure}
             
-            \subsubsection{Correlation between General Building Data and prox Data}
+            \subsubsection{Score of Classification of Abnormality}
+                We measure the score of algorithms which find abnormality, as question 3 or section \ref{sec:question3}. In table \ref{tb:abnormalprox}, you can see the scores of abnormality algorithms. Also, according to the table \ref{tb:abnormalprox}, the highest score is \textit{0.8969} on \textit{LocalOutlier} algorithm. Hence, we choose \textit{LocalOutlier} algorithm for finding abnormality in prox data. 
+                
+                \begin{table}[htbp]
+                    \centering
+                    \caption{Scores of Classification Algorithm with Abnormality of prox Data}
+                    \label{tb:abnormalprox}
+                    \begin{tabular}{c|cccc}
+                        & Elliptic & IsolationForest & LocalOutlier & OneClassSVM \\ \hline
+                        KNeighbor & 0.875 & 0.890 & 0.897 & 0.673 \\
+                        SVC & 0.895 & 0.891 & 0.897 & 0.684 \\
+                        DecisionTree & 0.891 & 0.885 & 0.897 & 0.688 \\
+                        RandomForest & 0.890 & 0.887 & 0.896 & 0.689 \\
+                        AdaBoost & 0.896 & 0.892 & 0.897 & 0.690 \\ \hline
+                        Mean & 0.8892 & 0.8890 & 0.8969 & 0.6848 \\
+                    \end{tabular}
+                \end{table}
             
             \subsubsection{Cause and Effect for the Correlation}
     
