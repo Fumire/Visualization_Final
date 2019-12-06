@@ -85,7 +85,7 @@
     \newpage
     
     \section{Introduction}
-        In this term project, we have to answer several question with virtual building data. 
+        In this term project, we have to answer several question with virtual building data. Moreover, the questions hereinafter have not decided answer, so we can freely find and talk about the data.
     
     \section{Materials}
         \subsection{Building Layout}
@@ -897,8 +897,38 @@
                 \end{table}
             
             \subsubsection{Cause and Effect for the Correlation}
+                With the data in table \ref{tb:abnormalprox}, we have chosen the \textit{LocalOutlier} algorithm for abnormal detection. Also, we draw the heatmap with correlation between general building data and prox frequency data as figure \ref{fig:correlationprox}.
+                
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=0.4 \linewidth]{figures/corrprox.png}
+                    \caption{Correlation Heatmap with General Building data and prox Data}
+                    \label{fig:correlationprox}
+                \end{figure}
+            
+                Table \ref{tb:correlationprox} shows the combination between general building data and prox frequency data which has higher R-value than 0.75. 
+                
+                \begin{table}[htbp]
+                    \caption{Combination of General Building Data and prox Data with High Correlation}
+                    \label{tb:correlationprox}
+                    \begin{tabular}{cc|c}
+                        prox Data & General Building Data & R-value \\ \hline
+                        total & F\_2\_Z\_8: Lights Power & 0.7598917081852358 \\
+                        total & F\_2\_Z\_8: Equipment Power & 0.7598917081852358 \\
+                        fixed & F\_2\_Z\_8: Lights Power & 0.7590154529862883 \\
+                        fixed & F\_2\_Z\_8: Equipment Power & 0.7590154529862883 \\
+                    \end{tabular}
+                \end{table}
+            
+                With the data in table \ref{tb:correlationprox}, we can know the followings. 
+                
+                \begin{enumerate}
+                    \item Floor 2 Zone 8 has a single item which consume the power: the lights.
+                    \item If the lights of Floor 2 Zone 8 is on, the people will be moving.
+                \end{enumerate}
     
     \section{Discussion}
+        With this building data, includes general building data, we could have understand about how to handle complex data set. 
     
     \bibliographystyle{ieeetr}
     \bibliography{reference}
