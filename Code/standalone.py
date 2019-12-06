@@ -128,7 +128,7 @@ def get_employee_data(show=False):
     """
     Get employee information.
 
-    Get employee information from data directory, and drop useless column. Save this with pickle format. Last modified: 2019-11-25T00:35:01+0900
+    Get employee information from data directory, and drop useless column. Save this with pickle format. Last modified: 2019-12-06T22:44:45+0900
 
     Args:
         show (bool): when this is true, show the data information before returning
@@ -157,6 +157,11 @@ def get_employee_data(show=False):
 
     if show:
         print(_data.info())
+
+    _sql_file = sql_directory + "employee_data.sql"
+    with open(_sql_file, "w") as f:
+        for index, row in _data.iterrows():
+            f.write("INSERT INTO `EmployeeData` (`IndexColumn`, `LastName`, `FirstName`, `Department`, `Office`, `prox-id`) VALUES (NULL, '%s', '%s', '%s', '%s', '%s');" % (row["Last Name"], row["First Name"], row["Department"], row["Office"], row["prox-id"]))
 
     return _data
 
@@ -1360,6 +1365,27 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
         fig.savefig(figure_directory + "DepartmentDistribution" + current_time() + ".png")
 
         matplotlib.pyplot.close()
+
+    _sql_file = sql_directory + "moving.sql"
+    with open(_sql_file, "w") as f:
+        moving_data = get_both_prox_data()
+        for percent in range(100):
+            minimum_value, maximum_value = numpy.nanpercentile(list(_distance_data.values()), minimum), numpy.nanpercentile(list(_distance_data.values()), maximum)
+            names = list(filter(lambda x: (_distance_data[x] >= minimum_value) and (_distance_data[x] <= maximum_value), list(_distance_data.keys())))
+
+            for name in names:
+                for floor in floors:
+                    wanted_data = moving_data.loc[(moving_data["prox-id"].str.contains(name)) & (moving_data["floor"] == floor)]
+                    x_data = list(wanted_data["x"])
+                    y_data = list(wanted_data["y"])
+                    timestamp = list(wanted_data["timestamp"])
+                    type_data = list(wanted_data["type"])
+
+                for i in range(1, len(x_data)):
+                    x, y = x_data[i], y_data[i]
+                    dx, dy = x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1]
+
+                    f.write("INSERT INTO `MovementData` (`IndexColumn`, `timestampe`, `type`, `prox-id`, `floor`, `x`, `y`, `dx`, `dy`, `percentile`) VALUES (NULL, '" + str(timestamp[i]) + "', '" + type_data[i] + "', '" + name + "', '" + str(floor) + "', '%d', '%d', '%d', '%d', '%d');" % (x, y, dx, dy, percent))
 
 
 def get_tsne_floor_data(floor=None, is_drawing=False, verbose=False):
@@ -3084,8 +3110,28 @@ def draw_correaltion_prox_data(verbose=False, processes=100):
         for x in prox_data.columns:
             correlation.append(pool.starmap(r_value, [(list(prox_data.loc[(abnormal_index)][x]), list(general_data.loc[(abnormal_index)][y])) for y in general_data.columns]))
 
+    matplotlib.use("Agg")
+    matplotlib.rcParams.update({"font.size": 30})
+
+    matplotlib.pyplot.figure()
+    matplotlib.pyplot.pcolor(correlation)
+
+    matplotlib.pyplot.title("Correlation between General Data and prox Data")
+    matplotlib.pyplot.xlabel("General Data")
+    matplotlib.pyplot.ylabel("prox Data")
+    matplotlib.pyplot.xticks([])
+    matplotlib.pyplot.yticks(numpy.arange(3) + 0.5, list(prox_data.columns))
+    matplotlib.pyplot.colorbar()
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(32, 18)
+    fig.savefig(figure_directory + "CorrelationProx" + current_time() + ".png")
+
+    matplotlib.pyplot.close()
+
     x_max, y_max = None, None
     x_min, y_min = None, None
+    absolute = list()
 
     for i, x in enumerate(prox_data.columns):
         for j, y in enumerate(general_data.columns):
@@ -3093,22 +3139,16 @@ def draw_correaltion_prox_data(verbose=False, processes=100):
                 x_max, y_max = x, y
             elif correlation[i][j] == numpy.min(correlation):
                 x_min, y_min = x, y
+            absolute.append((correlation[i][j], x, y))
 
     if verbose:
         print(x_max, y_max, numpy.max(correlation))
         print(x_min, y_min, numpy.min(correlation))
 
-    matplotlib.use("Agg")
-    matplotlib.rcParams.update({"font.size": 30})
-
-    matplotlib.pyplot.figure()
-    matplotlib.pyplot.scatter(general_data.loc[(abnormal_index)][y_max], prox_data.loc[(abnormal_index)][x_max], alpha=0.1)
-
-    fig = matplotlib.pyplot.gcf()
-    fig.set_size_inches(32, 18)
-    fig.savefig(figure_directory + "asdf" + current_time() + ".png")
-
-    matplotlib.pyplot.close()
+        for v, x, y in sorted(absolute, reverse=True):
+            if v < 0.75:
+                break
+            print(x, "&", y, "&", v, "\\\\")
 
 
 if __name__ == "__main__":
@@ -3133,7 +3173,7 @@ if __name__ == "__main__":
     # draw_movement(verbose=True, different_alpha=True)
     # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    # [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
+    [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
 
     # draw_hazium_data(verbose=True)
     # floor_data = get_floor_data(floor=2, verbose=True)
@@ -3163,5 +3203,5 @@ if __name__ == "__main__":
     # draw_cyclic_prox_data(verbose=True)
     # get_daily_prox_data(verbose=True)
     # get_abnormal_prox_data(verbose=True, is_drawing=True)
-    calculate_abnormality_prox_score(verbose=True)
-    draw_correaltion_prox_data(verbose=True, processes=100)
+    # calculate_abnormality_prox_score(verbose=True)
+    # draw_correaltion_prox_data(verbose=True, processes=100)
