@@ -161,7 +161,7 @@ def get_employee_data(show=False):
     _sql_file = sql_directory + "employee_data.sql"
     with open(_sql_file, "w") as f:
         for index, row in _data.iterrows():
-            f.write("INSERT INTO `EmployeeData` (`IndexColumn`, `LastName`, `FirstName`, `Department`, `Office`, `prox-id`) VALUES (NULL, '%s', '%s', '%s', '%s', '%s');" % (row["Last Name"], row["First Name"], row["Department"], row["Office"], row["prox-id"]))
+            f.write("INSERT INTO `EmployeeData` (`IndexColumn`, `LastName`, `FirstName`, `Department`, `Office`, `prox-id`) VALUES (NULL, '%s', '%s', '%s', '%s', '%s');\n" % (row["Last Name"], row["First Name"], row["Department"], row["Office"], row["prox-id"]))
 
     return _data
 
@@ -237,6 +237,14 @@ def get_general_zscore_data(show=False):
 
     if show:
         print(_data.info())
+
+    _sql_file = sql_directory + "general.sql"
+    with open(_sql_file, "w") as f:
+        columns = list(_data.columns)[1:]
+        for index, row in _data.iterrows():
+            print(">>", index)
+            for column in columns:
+                f.write("INSERT INTO `GeneralData` (`IndexColumn`, `Timestamp`, `Item`, `Value`) VALUES (NULL, '" + str(row["Date/Time"]) + "', '%s', '%f');\n" % (column, row[column]))
 
     return _data
 
@@ -1370,22 +1378,23 @@ def draw_percentile_moving_distribution(verbose=False, minimum=0, maximum=100):
     with open(_sql_file, "w") as f:
         moving_data = get_both_prox_data()
         for percent in range(100):
-            minimum_value, maximum_value = numpy.nanpercentile(list(_distance_data.values()), minimum), numpy.nanpercentile(list(_distance_data.values()), maximum)
-            names = list(filter(lambda x: (_distance_data[x] >= minimum_value) and (_distance_data[x] <= maximum_value), list(_distance_data.keys())))
+            print(">>", percent)
+            minimum_value, maximum_value = numpy.nanpercentile(list(_distance_data.values()), percent), numpy.nanpercentile(list(_distance_data.values()), percent + 1)
+            names = sorted(list(filter(lambda x: (_distance_data[x] >= minimum_value) and (_distance_data[x] <= maximum_value), list(_distance_data.keys()))))
 
             for name in names:
                 for floor in floors:
+
                     wanted_data = moving_data.loc[(moving_data["prox-id"].str.contains(name)) & (moving_data["floor"] == floor)]
                     x_data = list(wanted_data["x"])
                     y_data = list(wanted_data["y"])
                     timestamp = list(wanted_data["timestamp"])
                     type_data = list(wanted_data["type"])
 
-                for i in range(1, len(x_data)):
-                    x, y = x_data[i], y_data[i]
-                    dx, dy = x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1]
-
-                    f.write("INSERT INTO `MovementData` (`IndexColumn`, `timestampe`, `type`, `prox-id`, `floor`, `x`, `y`, `dx`, `dy`, `percentile`) VALUES (NULL, '" + str(timestamp[i]) + "', '" + type_data[i] + "', '" + name + "', '" + str(floor) + "', '%d', '%d', '%d', '%d', '%d');" % (x, y, dx, dy, percent))
+                    for i in range(1, len(x_data)):
+                        x, y = x_data[i], y_data[i]
+                        dx, dy = x_data[i] - x_data[i - 1], y_data[i] - y_data[i - 1]
+                        f.write("INSERT INTO `MovementData` (`IndexColumn`, `timestamp`, `type`, `prox-id`, `floor`, `x`, `y`, `dx`, `dy`, `percentile`) VALUES (NULL, '" + str(timestamp[i]) + "', '" + type_data[i] + "', '" + name + "', '" + str(floor) + "', '%d', '%d', '%d', '%d', '%d');\n" % (x, y, dx, dy, percent))
 
 
 def get_tsne_floor_data(floor=None, is_drawing=False, verbose=False):
@@ -1640,16 +1649,12 @@ def draw_correlation_with_general_data(verbose=False, processes=100):
     if verbose:
         print("Drawing Done!!")
 
-    with open("csv/CorrelationGeneral.csv", "w") as f:
-        columns = sorted(list(_values.keys()))
-        f.write("Index,")
-        f.write(",".join(columns))
-        f.write("\n")
-        for column in columns:
-            f.write(column)
-            f.write(",")
-            f.write(",".join([str(_values[column][another]) for another in columns]))
-            f.write("\n")
+    _sql_file = sql_directory + "correlation_general.sql"
+    with open(_sql_file, "w") as f:
+        columns = sorted(_values.columns)
+        for x in columns:
+            for y in columns:
+                f.write("INSERT INTO `CorrelationGeneral` (`IndexColumn`, `Column1`, `Column2`, `Value`) VALUES (NULL, '%s', '%s', '%f');\n" % (x, y, _values[x][y]))
 
     return _values
 
@@ -3154,6 +3159,7 @@ def draw_correaltion_prox_data(verbose=False, processes=100):
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
+    get_general_zscore_data(show=True)
     # general_zscore_data = get_general_zscore_data(show=True)
     # hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
     # fixed_prox_data = get_fixed_prox_data(show=True)
@@ -3173,7 +3179,8 @@ if __name__ == "__main__":
     # draw_movement(verbose=True, different_alpha=True)
     # movement_information = calculate_movement(verbose=True)
     # draw_movement_distribution(verbose=True)
-    [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
+    # [draw_percentile_moving_distribution(verbose=True, minimum=i, maximum=i + 25) for i in range(0, 100, 25)]
+    # draw_percentile_moving_distribution(verbose=True, minimum=0, maximum=100)
 
     # draw_hazium_data(verbose=True)
     # floor_data = get_floor_data(floor=2, verbose=True)
