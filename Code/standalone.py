@@ -238,13 +238,14 @@ def get_general_zscore_data(show=False):
     if show:
         print(_data.info())
 
+    _timestamp = list(get_general_data()["Date/Time"])
     _sql_file = sql_directory + "general.sql"
     with open(_sql_file, "w") as f:
         columns = list(_data.columns)[1:]
         for index, row in _data.iterrows():
             print(">>", index)
             for column in columns:
-                f.write("INSERT INTO `GeneralData` (`IndexColumn`, `Timestamp`, `Item`, `Value`) VALUES (NULL, '" + str(row["Date/Time"]) + "', '%s', '%f');\n" % (column, row[column]))
+                f.write("INSERT INTO `GeneralData` (`IndexColumn`, `Timestamp`, `Item`, `Value`) VALUES (NULL, '" + str(_timestamp[index]) + "', '" + column + "', '%f');\n" % row[column])
 
     return _data
 
@@ -1187,6 +1188,17 @@ def get_abnormal_general_data(is_drawing=False, verbose=False):
 
             matplotlib.pyplot.close()
 
+    timedata = list(get_general_data()["Date/Time"])
+    _sql_file = sql_directory + "abnormal_general_data.sql"
+    with open(_sql_file, "w") as f:
+        for index, row in _tsne.iterrows():
+            elliptic = 1 if row["elliptic"] else 0
+            oneclasssvm = 1 if row["oneclasssvm"] else 0
+            isolationforest = 1 if row["isolationforest"] else 0
+            localoutlier = 1 if row["localoutlier"] else 0
+
+            f.write("INSERT INTO `AbnormalGeneral` (`IndexColumn`, `Timestamp`, `elliptic`, `oneclasssvm`, `isolationforest`, `localoutlier`) VALUES (NULL, '" + str(timedata[index]) + "', '%d', '%d', '%d', '%d');\n" % (elliptic, oneclasssvm, isolationforest, localoutlier))
+
     return _tsne
 
 
@@ -1847,6 +1859,15 @@ def get_all_hazium_data(show=False):
 
     if show:
         print(_data.info())
+
+    names = list(map(lambda x: x[x.rfind("/") + 1:], list(get_hazium_data().values())))
+    columns = list(_data.columns)[:-1]
+    _sql_file = sql_directory + "hazium.sql"
+
+    with open(_sql_file, "w") as f:
+        for name, column in zip(names, columns):
+            for timestamp, value in zip(_data["Date/Time"], _data[column]):
+                f.write("INSERT INTO `HaziumData` (`IndexColumn`, `Timestamp`, `Item`, `Value`) VALUES (NULL, '" + str(timestamp) + "', '" + name + "', '%f');\n" % value)
 
     return _data
 
@@ -3099,7 +3120,7 @@ def calculate_abnormality_prox_score(verbose=False):
     return score
 
 
-def draw_correaltion_prox_data(verbose=False, processes=100):
+def draw_correlation_prox_data(verbose=False, processes=100):
     """
     """
     abnormal_index = get_abnormal_prox_data()["localoutlier"]
@@ -3159,18 +3180,19 @@ def draw_correaltion_prox_data(verbose=False, processes=100):
 if __name__ == "__main__":
     # employee_data = get_employee_data(show=True)
     # general_data = get_general_data(show=True)
-    get_general_zscore_data(show=True)
+    # get_general_zscore_data(show=True)
     # general_zscore_data = get_general_zscore_data(show=True)
     # hazium_data = [get_hazium_data(data, True) for data in get_hazium_data()]
     # fixed_prox_data = get_fixed_prox_data(show=True)
     # mobile_prox_data = get_mobile_prox_data(show=True)
     # get_both_prox_data(verbose=True)
+    # get_all_hazium_data(show=True)
 
     # draw_mobile_prox_data(verbose=True)
     # tsne_prox_data = get_tsne_prox_data(is_drawing=True, verbose=True)
     # draw_tsne_mobile_prox_data_by_value(verbose=True)
     # tsne_general_data = get_tsne_general_data(is_drawing=True, verbose=True)
-    # abnormal_general_data = get_abnormal_general_data(is_drawing=True, verbose=True)
+    # abnormal_general_data = get_abnormal_general_data(is_drawing=False, verbose=True)
     # draw_general_data(verbose=True, relative=False)
     # draw_hazium_data(verbose=True, which=None)
 
@@ -3204,11 +3226,11 @@ if __name__ == "__main__":
     # draw_fourth_quarter_general_data(verbose=True, processes=100)
     # calculate_abnormality_score(verbose=True)
     # compare_column(verbose=True)
-    # compare_general_hazium(verbose=True)
+    compare_general_hazium(verbose=True)
 
     # get_prox_data_frequency(verbose=True, is_drawing=True)
     # draw_cyclic_prox_data(verbose=True)
     # get_daily_prox_data(verbose=True)
     # get_abnormal_prox_data(verbose=True, is_drawing=True)
     # calculate_abnormality_prox_score(verbose=True)
-    # draw_correaltion_prox_data(verbose=True, processes=100)
+    # draw_correlation_prox_data(verbose=True, processes=100)
