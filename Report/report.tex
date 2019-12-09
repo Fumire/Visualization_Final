@@ -233,7 +233,7 @@
                 \end{table}
             
             \subsubsection{Workflow}
-                With the general information of prox data, we have decided our workflow for question 1 as figure \ref{fig:workflow1}.
+                With the general information of prox data, we have decided our workflow for question 1 or section \ref{sec:question1} as figure \ref{fig:workflow1}.
                 
                 \begin{figure}[htbp]
                     \centering
@@ -462,6 +462,7 @@
                 \end{figure}
             
             \subsubsection{Workflow}
+                We have decided our workflow for question 2 or section \ref{sec:question2} as figure \ref{fig:workflow2}.
                 \begin{figure}[htbp]
                     \centering
                     \begin{tikzpicture}[node distance = 2cm, auto]
@@ -751,9 +752,59 @@
                 In the figure \ref{fig:generalhazium}, we can see Hazium concentration of many sources. 
 
             \subsubsection{Workflow}
+                We have decided our workflow for question 3 or section \ref{sec:question3} as figure \ref{fig:workflow3}.
                 \begin{figure}[htbp]
                     \centering
                     \begin{tikzpicture}[node distance = 2cm, auto]
+                        \node[decision](way301){Normal?};
+                        
+                        \node[cloud, left of=way301, below of=way301](way302){OneClassSVM};
+                        \node[cloud, right of=way301, below of=way301](way303){IsolationForest};
+                        \node[cloud, left=1cm of way302](way304){Elliptic};
+                        \node[cloud, right=1cm of way303](way305){LocalOutlier};
+                        \path [line] (way301) -- (way302);
+                        \path [line] (way301) -- (way303);
+                        \path [line] (way301) -- (way304);
+                        \path [line] (way301) -- (way305);
+                        
+                        \node[decision, below=2cm of way301](way306){Best?};
+                        \path [line] (way302) -- (way306);
+                        \path [line] (way303) -- (way306);
+                        \path [line] (way304) -- (way306);
+                        \path [line] (way305) -- (way306);
+                        
+                        \node[cloud, below of=way306](way307){DecisionTree};
+                        \node[cloud, left=1cm of way307](way308){SVC};
+                        \node[cloud, left=1cm of way308](way309){KNeighbor};
+                        \node[cloud, right=1cm of way307](way310){RandomForest};
+                        \node[cloud, right=1cm of way310](way311){AdaBoost};
+                        \path [line] (way306) -- (way307);
+                        \path [line] (way306) -- (way308);
+                        \path [line] (way306) -- (way309);
+                        \path [line] (way306) -- (way310);
+                        \path [line] (way306) -- (way311);
+                        
+                        \node[block, below of=way307, text width=0.2 \linewidth](way312){LocalOutlier};
+                        \path [line] (way307) -- (way312);
+                        \path [line] (way308) -- (way312);
+                        \path [line] (way309) -- (way312);
+                        \path [line] (way310) -- (way312);
+                        \path [line] (way311) -- (way312);
+                        
+                        \node[block, below of=way312](way313){Divide into};
+                        \path [line] (way312) -- (way313);
+                        
+                        \node[cloud, left of=way313, below of=way313](way314){Normal};
+                        \node[cloud, right of=way313, below of=way313](way315){Abnormal};
+                        \path [line] (way313) -- (way314);
+                        \path [line] (way313) -- (way315);
+                        
+                        \node[decision, below=3cm of way313](way316){\(\Delta\)Mean?};
+                        \path [line] (way314) -- (way316);
+                        \path [line] (way315) -- (way316);
+                        
+                        \node[block, below of=way316](way317){Correlation};
+                        \path [line] (way316) -- (way317);
                     \end{tikzpicture}
                     \caption{Workflow for Question 3}
                     \label{fig:workflow3}
@@ -911,9 +962,50 @@
                 \end{figure}
             
             \subsubsection{Workflow}
+                We have decided our workflow for question 4 or section \ref{sec:question4} as figure \ref{fig:workflow4}.
                 \begin{figure}[htbp]
                     \centering
                     \begin{tikzpicture}[node distance = 2cm, auto]
+                        \node[decision](way401){Normal?};
+                        
+                        \node[cloud, left of=way401, below of=way401](way402){OneClassSVM};
+                        \node[cloud, right of=way401, below of=way401](way403){IsolationForest};
+                        \node[cloud, left=1cm of way402](way404){Elliptic};
+                        \node[cloud, right=1cm of way403](way405){LocalOutlier};
+                        \path [line] (way401) -- (way402);
+                        \path [line] (way401) -- (way403);
+                        \path [line] (way401) -- (way404);
+                        \path [line] (way401) -- (way405);
+                        
+                        \node[decision, below=2cm of way401](way406){Best?};
+                        \path [line] (way402) -- (way406);
+                        \path [line] (way403) -- (way406);
+                        \path [line] (way404) -- (way406);
+                        \path [line] (way405) -- (way406);
+                        
+                        \node[cloud, below of=way406](way407){DecisionTree};
+                        \node[cloud, left=1cm of way407](way408){SVC};
+                        \node[cloud, left=1cm of way408](way409){KNeighbor};
+                        \node[cloud, right=1cm of way407](way410){RandomForest};
+                        \node[cloud, right=1cm of way410](way411){AdaBoost};
+                        \path [line] (way406) -- (way407);
+                        \path [line] (way406) -- (way408);
+                        \path [line] (way406) -- (way409);
+                        \path [line] (way406) -- (way410);
+                        \path [line] (way406) -- (way411);
+                        
+                        \node[block, below of=way407, text width=0.2 \linewidth](way412){LocalOutlier};
+                        \path [line] (way407) -- (way412);
+                        \path [line] (way408) -- (way412);
+                        \path [line] (way409) -- (way412);
+                        \path [line] (way410) -- (way412);
+                        \path [line] (way411) -- (way412);
+                        
+                        \node[block, below of=way412, text width=0.2 \linewidth](way413){Select Abnormal};
+                        \path [line] (way412) -- (way413);
+                        
+                        \node[block, below of=way413](way414){Correlation?};
+                        \path [line] (way413) -- (way414);
                     \end{tikzpicture}
                     \caption{Workflow for Question 4}
                     \label{fig:workflow4}
