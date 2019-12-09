@@ -39,9 +39,9 @@
 }
 \lstset{style=mystyle}
 \tikzstyle{decision} = [diamond, draw, fill=blue!20, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
-\tikzstyle{block} = [rectangle, draw, fill=blue!20, text width=5em, text centered, rounded corners, minimum height=2em]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, text width=5em, text centered, rounded corners, minimum height=2em, node distance=2cm]
 \tikzstyle{line} = [draw, -latex']
-\tikzstyle{cloud} = [draw, ellipse, fill=red!20, node distance=5em, minimum height=2em]
+\tikzstyle{cloud} = [draw, ellipse, fill=red!20, node distance=5em, minimum height=2em, node distance=2cm]
 \tikzset
 {
     -|-/.style=
@@ -238,11 +238,24 @@
                 \begin{figure}[htbp]
                     \centering
                     \begin{tikzpicture}[node distance = 2cm, auto]
-                        \node[block](root1){Find quarter percentile};
-                        \node[cloud, below of=root1, left of=root1](q2){25\%-50\%};
-                        \node[cloud, below of=root1, right of=root1](q3){50\%-75\%};
-                        \node[cloud, left=1cm of q2](q1){0\%-25\%};
-                        \node[cloud, right=1cm of q3](q4){75\%-100\%};
+                        \node[cloud](root1){Divide the employees};
+                        
+                        \node[decision, below of=root1, left of=root1](div1){By percentile};
+                        \path [line] (root1) -- (div1); 
+                        
+                        \node[block, below=1cm of div1](find1){Movement Direction and Distance};
+                        \path [line] (div1) -- (find1);
+                        
+                        \node[decision, below of=root1, right of=root1](div2){By departments};
+                        \path [line] (root1) -- (div2);
+                        
+                        \node[block, below=1cm of div2](find2){Departemnt Distribution from \% to \%};
+                        \path [line] (div2) -- (find2);
+                        
+                        \node[cloud, below=8cm of root1](con1){Find Patterns};
+                        \path [line] (find1) -- (con1);
+                        \path [line] (find2) -- (con1);
+
                     \end{tikzpicture}
                     \caption{Workflow for Question 1}
                     \label{fig:workflow1}
@@ -452,6 +465,51 @@
                 \begin{figure}[htbp]
                     \centering
                     \begin{tikzpicture}[node distance = 2cm, auto]
+                        \node[cloud](root2){How to find Pattern?};
+                        
+                        \node[block, left of=root2, below of=root2, text width=0.2 \linewidth](way201){Correlation within General Data};
+                        \path [line] (root2) -- (way201);
+                        
+                        \node[cloud, left of=way201, below of=way201](way203){\(R < 0\)};
+                        \path [line] (way201) -- (way203);
+                        
+                        \node[cloud, right of=way201, below of=way201](way204){\(R > 0\)};
+                        \path [line] (way201) -- (way204);
+                        
+                        \node[block, below of=way204](way205){Many \(R = 1\)};
+                        \path [line] (way204) -- (way205);
+                        
+                        \node[block, right of=root2, below of=root2](way202){Divide into Quarters};
+                        \path [line] (root2) -- (way202);
+                        
+                        \node[cloud, below of=way202](way206){First Q.};
+                        \node[cloud, right of=way206](way207){Second Q.};
+                        \node[cloud, right of=way207](way208){Third Q.};
+                        \node[cloud, right of=way208](way209){Fourth Q.};
+                        \path [line] (way202) -- (way206);
+                        \path [line] (way202) -- (way207);
+                        \path [line] (way202) -- (way208);
+                        \path [line] (way202) -- (way209);
+                        
+                        \node[block, below of=way206](way210){Cycle};
+                        \path [line] (way206) -- (way210);
+                        \path [line] (way208) -- (way210);
+                        
+                        \node[cloud, below of=way210](way213){Period};
+                        \path [line] (way210) -- (way213);
+                        
+                        \node[block, below of=way209, text width=0.2 \textwidth](way211){Peak/Under Peak};
+                        \path [line] (way207) -- (way211);
+                        \path [line] (way209) -- (way211);
+                        
+                        \node[cloud, below of=way211](way214){Widths of Peaks};
+                        \path [line] (way211) -- (way214); 
+                        
+                        \node[decision, below of=way213](way215){Pattern?};
+                        \path [line] (way203) -- (way215);
+                        \path [line] (way205) -- (way215);
+                        \path [line] (way213) -- (way215);
+                        \path [line] (way214) -- (way215);
                     \end{tikzpicture}
                     \caption{Workflow for Question 2}
                     \label{fig:workflow2}
